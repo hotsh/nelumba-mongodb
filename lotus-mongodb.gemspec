@@ -7,10 +7,10 @@ Gem::Specification.new do |gem|
   gem.name          = "lotus-mongodb"
   gem.version       = Lotus::MONGODB_VERSION
   gem.authors       = ["wilkie"]
-  gem.email         = ["wilkie05@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.email         = ["wilkie@xomb.com"]
+  gem.description   = %q{A persistence layer for lotus.}
+  gem.summary       = %q{A persistence layer for lotus.}
+  gem.homepage      = "https://github.com/hotsh/lotus-mongodb"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
