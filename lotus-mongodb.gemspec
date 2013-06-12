@@ -5,7 +5,7 @@ require 'lotus-mongodb/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "lotus-mongodb"
-  gem.version       = Lotus::Mongodb::VERSION
+  gem.version       = Lotus::MONGODB_VERSION
   gem.authors       = ["wilkie"]
   gem.email         = ["wilkie05@gmail.com"]
   gem.description   = %q{TODO: Write a gem description}
