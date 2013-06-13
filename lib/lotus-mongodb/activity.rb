@@ -82,6 +82,14 @@ module Lotus
     # Log modification
     timestamps!
 
+    def published
+      self.created_at
+    end
+
+    def updated
+      self.updated_at
+    end
+
     # Ensure that url and uid for the activity are set
     before_create :ensure_uid_and_url
 
