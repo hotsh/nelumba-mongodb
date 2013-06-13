@@ -44,6 +44,12 @@ module Lotus
         self.storage_write "avatar_#{avatar.id}_#{width}x#{height}", resized.to_blob
       end
 
+      # Find old avatar
+      old = Avatar.first(:author_id => author.id)
+      if old
+        old.destroy
+      end
+
       avatar.save
       avatar
     end

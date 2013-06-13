@@ -74,6 +74,59 @@ describe Lotus::Avatar do
       Lotus::Avatar.from_url!(author, "bogus").must_equal nil
     end
 
+    it "should destroy any previous avatar" do
+      uri = stub('URI')
+      uri.stubs(:request_uri)
+      uri.stubs(:hostname)
+      uri.stubs(:port)
+      uri.stubs(:scheme).returns("https")
+      Lotus::Avatar.stubs(:URI).with("valid").returns(uri)
+
+      request = stub('Net::HTTP::Request')
+      Net::HTTP::Get.stubs(:new).returns(request)
+
+      http = stub('Net::HTTP')
+      http.stubs(:use_ssl=)
+      http.stubs(:verify_mode=)
+      Net::HTTP.stubs(:new).returns(http)
+
+      response = Net::HTTPOK.new
+      response.stubs(:body)
+      http.stubs(:request).returns(response)
+
+      new_image = stub('Magick::ImageList')
+      new_image.stubs(:to_blob).returns("NEW IMAGE")
+
+      image = stub('Magick::ImageList')
+      image.stubs(:from_blob)
+      image.stubs(:mime_type).returns("MIME")
+      image.stubs(:resize_to_fill).with(48, 48).returns(new_image)
+      Magick::ImageList.stubs(:new).returns(image)
+
+      author = Lotus::Author.create
+
+      io = stub('IO')
+      io.stubs(:put)
+
+      gridfs = stub('Mongo::Grid')
+      Mongo::Grid.stubs(:new).returns(gridfs)
+
+      avatar = stub('Avatar')
+      avatar.stubs(:id).returns("ID")
+      avatar.stubs(:content_type=)
+      avatar.stubs(:save)
+      avatar.stubs(:_id).returns("ID")
+      Lotus::Avatar.stubs(:new).returns(avatar)
+
+      gridfs.stubs(:put).with("NEW IMAGE", :_id => "avatar_ID_48x48")
+
+      old = Lotus::Avatar.new
+      Lotus::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(old)
+      old.expects(:destroy)
+
+      Lotus::Avatar.from_url!(author, "valid", :sizes => [[48, 48]])
+    end
+
     it "should use ssl and verify when given" do
       uri = stub('URI')
       uri.stubs(:request_uri)
@@ -95,6 +148,7 @@ describe Lotus::Avatar do
       Magick::ImageList.stubs(:new)
 
       author = Lotus::Author.create
+      Lotus::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
 
       http.expects(:use_ssl=).with(true)
       http.expects(:verify_mode=).with(OpenSSL::SSL::VERIFY_PEER)
@@ -127,6 +181,8 @@ describe Lotus::Avatar do
       Magick::ImageList.stubs(:new).returns(image)
 
       author = Lotus::Author.create
+
+      Lotus::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
 
       Lotus::Avatar.from_url!(author, "valid").content_type.must_equal "MIME"
     end
@@ -169,6 +225,8 @@ describe Lotus::Avatar do
       new_image.stubs(:to_blob).returns("NEW IMAGE")
 
       image.expects(:resize_to_fill).with(48, 48).returns(new_image)
+
+      Lotus::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
 
       Lotus::Avatar.from_url!(author, "valid", :sizes => [[48, 48]])
     end
@@ -216,6 +274,8 @@ describe Lotus::Avatar do
       avatar.stubs(:save)
       avatar.stubs(:_id).returns("ID")
       Lotus::Avatar.stubs(:new).returns(avatar)
+
+      Lotus::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
 
       gridfs.expects(:put).with("NEW IMAGE", :_id => "avatar_ID_48x48")
       Lotus::Avatar.from_url!(author, "valid", :sizes => [[48, 48]])
