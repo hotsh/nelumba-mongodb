@@ -1,20 +1,10 @@
 module Lotus
   class Activity
-    alias :old_initialize :initialize
-    remove_method :initialize
-
-    include MongoMapper::Document
+    include Lotus::Object
 
     # All Activities originate from one particular Feed.
     key :feed_id, ObjectId
     belongs_to :feed, :class_name => 'Lotus::Feed'
-
-    # Unique id for this Activity.
-    key :uid
-
-    # Unique url for this activity that can be used to retrieve a representation
-    # of this Activity.
-    key :url
 
     # Determines what type of object this Activity represents. Standard types
     # include:
@@ -37,18 +27,14 @@ module Lotus
     key :target_type, String
 
     # Can attach an external object to this Activity.
-    # It has a weird name because it complains if I use object_id
-    key :object_uid, ObjectId
-    key :object_type, String
+    key :external_object_id, ObjectId
+    key :external_object_type, String
+
+    # Optionally, an object can be embedded inside an Activity.
+    one :embedded_object, :class_name => "Lotus::Comment", :polymorphic => true
 
     # The title of the Activity.
     key :title
-
-    # The content of the Activity.
-    key :content
-
-    # Determines what representation the content is in. (e.g. "html")
-    key :content_type
 
     # Contains the source of this Activity if it is a repost or otherwise copied
     # from another Feed.
@@ -78,17 +64,6 @@ module Lotus
     key :likes_ids, Array
     remove_method :likes
     many :likes, :in => :likes_ids, :class_name => 'Lotus::Author'
-
-    # Log modification
-    timestamps!
-
-    def published
-      self.created_at
-    end
-
-    def updated
-      self.updated_at
-    end
 
     # Ensure that url and uid for the activity are set
     before_create :ensure_uid_and_url
@@ -129,21 +104,32 @@ module Lotus
     # Set the object.
     def object=(obj)
       if obj.nil?
-        self.object_uid = nil
-        self.object_type = nil
+        self.external_object_id = nil
+        self.external_object_type = nil
+      elsif obj.class.respond_to?(:embeddable?) && obj.class.embeddable?
+        self.embedded_object = obj
+        self.external_object_id = nil
+        self.external_object_type = nil
       else
-        self.object_uid  = obj.id
-        self.object_type = obj.class.to_s
-        self.object_type = self.object_type[7..-1] if self.object_type.start_with? "Lotus::"
+        self.embedded_object = nil
+        self.external_object_id   = obj.id
+        self.external_object_type = obj.class.to_s
+        if self.external_object_type.start_with? "Lotus::"
+          self.external_object_type = self.external_object_type[7..-1]
+        end
       end
+      @object = obj
     end
 
     # Get the object.
     def object
-      return self unless self.object_type
+      return @object if @object
 
-      klass = Lotus.const_get(self.object_type) if self.object_type
-      klass.find_by_id(self.object_uid) if klass && self.object_uid
+      return @object = self.embedded_object if self.embedded_object
+      return @object = self unless self.external_object_type
+
+      klass = Lotus.const_get(self.external_object_type) if self.external_object_type
+      @object = klass.find_by_id(self.external_object_id) if klass && self.external_object_id
     end
 
     # Create a new Activity if the given Activity is not found by its id.
@@ -217,7 +203,7 @@ module Lotus
       object_owner = nil
       object_owner = self.object.actor if self.object.respond_to?(:actor)
       object_owner = self.object if self.object.is_a?(Lotus::Author)
-      object_owner = self.actor unless self.object_type
+      object_owner = self.actor unless self.external_object_type
 
       {
         :verb         => self.verb || :post,
@@ -316,10 +302,10 @@ module Lotus
       activity = self
       case self.object_type
       when 'Activity'
-        embedded_activity = Lotus::Activity.find_by_id(self.object_uid)
+        embedded_activity = Lotus::Activity.find_by_id(self.external_object_id)
         activity = embedded_activity if embedded_activity
       when 'Author'
-        embedded_author = Lotus::Author.find_by_id(self.object_uid)
+        embedded_author = Lotus::Author.find_by_id(self.external_object_id)
         object = embedded_author if embedded_author
       end
 

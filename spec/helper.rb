@@ -58,14 +58,7 @@ module MongoMapper::Plugins::Associations::ClassMethods
   end
 end
 
-require_relative '../lib/lotus-mongodb/person'
-require_relative '../lib/lotus-mongodb/identity'
-require_relative '../lib/lotus-mongodb/author'
-require_relative '../lib/lotus-mongodb/feed'
-require_relative '../lib/lotus-mongodb/aggregate'
-require_relative '../lib/lotus-mongodb/avatar'
-require_relative '../lib/lotus-mongodb/activity'
-require_relative '../lib/lotus-mongodb/authorization'
+require_relative '../lib/lotus-mongodb.rb'
 
 MongoMapper.connection = Mongo::Connection.new('localhost')
 MongoMapper.database = "lotus-test"

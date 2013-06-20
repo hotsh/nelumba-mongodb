@@ -34,12 +34,12 @@ describe Lotus::Activity do
       Lotus::Activity.keys.keys.must_include "target_type"
     end
 
-    it "should have an object_uid" do
-      Lotus::Activity.keys.keys.must_include "object_uid"
+    it "should have an external_object_id" do
+      Lotus::Activity.keys.keys.must_include "external_object_id"
     end
 
-    it "should have an object_type" do
-      Lotus::Activity.keys.keys.must_include "object_type"
+    it "should have an external_object_type" do
+      Lotus::Activity.keys.keys.must_include "external_object_type"
     end
 
     it "should have a title" do
@@ -48,10 +48,6 @@ describe Lotus::Activity do
 
     it "should have a content" do
       Lotus::Activity.keys.keys.must_include "content"
-    end
-
-    it "should have a content_type" do
-      Lotus::Activity.keys.keys.must_include "content_type"
     end
 
     it "should have a source" do
