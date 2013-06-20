@@ -2,8 +2,7 @@
 # go into Feeds. Feeds are collected into Aggregates.
 module Lotus
   class Author
-    alias :old_initialize :initialize
-    remove_method :initialize
+    def initialize(*args); super(*args); end
 
     include MongoMapper::Document
 

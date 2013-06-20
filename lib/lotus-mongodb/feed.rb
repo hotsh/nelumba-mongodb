@@ -1,7 +1,6 @@
 module Lotus
   class Feed
-    alias :old_initialize :initialize
-    remove_method :initialize
+    def initialize(*args); super(*args); end
 
     include MongoMapper::Document
 

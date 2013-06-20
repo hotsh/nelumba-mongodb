@@ -3,8 +3,7 @@ module Lotus
   # external to our node, or it represents how to talk to us.
   # An Identity stores endpoints that are used to push or pull Activities from.
   class Identity
-    alias :old_initialize :initialize
-    remove_method :initialize
+    def initialize(*args); super(*args); end
 
     include MongoMapper::Document
 
