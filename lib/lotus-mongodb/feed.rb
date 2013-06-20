@@ -44,11 +44,10 @@ module Lotus
     many :authors,      :class_name => 'Lotus::Author', :in => :authors_ids
 
     # An Array of Activities that are contained in this Feed.
-    key :entries_ids,  Array
-    remove_method :entries
-    many :entries,     :class_name => 'Lotus::Activity',
-                       :in => :entries_ids,
-                       :order      => :created_at.desc
+    key :items_ids,  Array
+    many :items,     :class_name => 'Lotus::Activity',
+                     :in         => :items_ids,
+                     :order      => :created_at.desc
 
     # A Hash containing information about the entity that is generating content
     # for this Feed when it isn't a person.
@@ -104,7 +103,7 @@ module Lotus
           Author.find_or_create_by_uid!(a, :safe => true)
         end
 
-        hash[:entries].map! do |a|
+        hash[:items].map! do |a|
           Lotus::Activity.find_or_create_by_uid!(a, :safe => true)
         end
       end
@@ -136,7 +135,7 @@ module Lotus
       activity.feed_id = self.id
       activity.save
 
-      self.entries << activity
+      self.items << activity
       self.save
 
       activity
@@ -144,13 +143,13 @@ module Lotus
 
     # Reposts an activity from another feed.
     def repost!(activity)
-      self.entries << activity
+      self.items << activity
       self.save
     end
 
     # Deletes the activity from this feed.
     def delete!(activity)
-      self.entries_ids.delete(activity.id)
+      self.items_ids.delete(activity.id)
       self.save
     end
 
@@ -158,7 +157,7 @@ module Lotus
     def merge!(feed)
       # Merge metadata
       meta_data = feed.to_hash
-      meta_data.delete :entries
+      meta_data.delete :items
       meta_data.delete :authors
       meta_data.delete :contributors
       meta_data.delete :uid
@@ -173,13 +172,13 @@ module Lotus
       end
 
       # Merge new/updated activities
-      feed.entries.each do |activity|
+      feed.items.each do |activity|
       end
     end
 
     # Retrieve the feed's activities with the most recent first.
     def ordered
-      Lotus::Activity.where(:id => self.entries_ids).order(:created_at => :desc)
+      Lotus::Activity.where(:id => self.items_ids).order(:created_at => :desc)
     end
   end
 end

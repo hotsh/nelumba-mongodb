@@ -46,8 +46,8 @@ describe Lotus::Feed do
       Lotus::Feed.keys.keys.must_include "authors_ids"
     end
 
-    it "should have entries_ids" do
-      Lotus::Feed.keys.keys.must_include "entries_ids"
+    it "should have items_ids" do
+      Lotus::Feed.keys.keys.must_include "items_ids"
     end
 
     it "should have a generator" do
@@ -105,7 +105,7 @@ describe Lotus::Feed do
       lotus_feed.stubs(:to_hash).returns({:uid => "UID",
                                           :authors => [],
                                           :contributors => [],
-                                          :entries => []})
+                                          :items => []})
 
       Lotus::Feed.new(lotus_feed).uid.must_equal "UID"
     end
@@ -116,7 +116,7 @@ describe Lotus::Feed do
                                           :authors => [{:uid => "author UID",
                                                         :url => "author URL"}],
                                           :contributors => [],
-                                          :entries => []})
+                                          :items => []})
 
       author = Lotus::Author.new
       Lotus::Author.expects(:find_or_create_by_uid!).returns(author)
@@ -131,7 +131,7 @@ describe Lotus::Feed do
                                             {:uid => "author UID",
                                              :url => "author URL"}],
                                           :authors => [],
-                                          :entries => []})
+                                          :items => []})
 
       author = Lotus::Author.new
       Lotus::Author.expects(:find_or_create_by_uid!).returns(author)
@@ -144,7 +144,7 @@ describe Lotus::Feed do
       lotus_feed.stubs(:to_hash).returns({:id => "UID",
                                           :contributors => [],
                                           :authors => [],
-                                          :entries => [{:uid => "UID",
+                                          :items => [{:uid => "UID",
                                                         :url => "URL"}]})
 
       activity = Lotus::Activity.new
@@ -234,7 +234,7 @@ describe Lotus::Feed do
       feed.post! activity
     end
 
-    it "should add the activity to the entries" do
+    it "should add the activity to the items" do
       feed = Lotus::Feed.new
       feed.stubs(:save)
 
@@ -243,7 +243,7 @@ describe Lotus::Feed do
 
       feed.post! activity
 
-      feed.entries_ids.must_include activity.id
+      feed.items_ids.must_include activity.id
     end
 
     it "should save" do
@@ -259,7 +259,7 @@ describe Lotus::Feed do
   end
 
   describe "#repost!" do
-    it "should simply add the activity to entries" do
+    it "should simply add the activity to items" do
       feed = Lotus::Feed.new
       feed.stubs(:save)
 
@@ -268,7 +268,7 @@ describe Lotus::Feed do
 
       feed.repost! activity
 
-      feed.entries_ids.must_include activity.id
+      feed.items_ids.must_include activity.id
     end
 
     it "should save" do
@@ -284,17 +284,17 @@ describe Lotus::Feed do
   end
 
   describe "#delete!" do
-    it "should remove the given activity from entries" do
+    it "should remove the given activity from items" do
       feed = Lotus::Feed.new
       feed.stubs(:save)
 
       activity = Lotus::Activity.new
       activity.stubs(:save)
 
-      feed.entries << activity
+      feed.items << activity
 
       feed.delete! activity
-      feed.entries_ids.wont_include activity.id
+      feed.items_ids.wont_include activity.id
     end
 
     it "should save" do
@@ -303,7 +303,7 @@ describe Lotus::Feed do
       activity = Lotus::Activity.new
       activity.stubs(:save)
 
-      feed.entries << activity
+      feed.items << activity
 
       feed.expects(:save)
       feed.delete! activity
@@ -319,7 +319,7 @@ describe Lotus::Feed do
       lotus_feed = Lotus::Feed.new
       lotus_feed.stubs(:authors).returns([])
       lotus_feed.stubs(:contributors).returns([])
-      lotus_feed.stubs(:entries).returns([])
+      lotus_feed.stubs(:items).returns([])
       lotus_feed.stubs(:to_hash).returns({:rights => "NEW RIGHTS",
                                           :url => "NEW URL",
                                           :subtitle => "NEW SUBTITLE"})
@@ -331,10 +331,10 @@ describe Lotus::Feed do
   end
 
   describe "#ordered" do
-    it "should return a query for the entries in descending order" do
+    it "should return a query for the items in descending order" do
       feed = Lotus::Feed.new
       feed.stubs(:save)
-      feed.entries_ids = ["id1", "id2"]
+      feed.items_ids = ["id1", "id2"]
 
       query = stub('Plucky')
       query.expects(:order)
