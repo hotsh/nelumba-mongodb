@@ -2,10 +2,6 @@ module Lotus
   module EmbeddedObject
     def self.included(klass)
       klass.class_eval do
-        def initialize(*args)
-          super(*args)
-        end
-
         include MongoMapper::EmbeddedDocument
 
         belongs_to :author, :class_name => 'Lotus::Author'
