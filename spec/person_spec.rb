@@ -371,8 +371,8 @@ describe Lotus::Person do
       activity = Lotus::Activity.new
 
       @person.activities.expects(:post!)
-        .with(has_entries(:object_uid  => activity.id,
-                          :object_type => 'Activity'))
+        .with(has_entries(:external_object_id   => activity.id,
+                          :external_object_type => 'Activity'))
 
       @person.favorite! activity
     end
@@ -421,8 +421,8 @@ describe Lotus::Person do
       activity = Lotus::Activity.new
 
       @person.activities.expects(:post!)
-        .with(has_entries(:object_uid  => activity.id,
-                          :object_type => 'Activity'))
+        .with(has_entries(:external_object_id   => activity.id,
+                          :external_object_type => 'Activity'))
 
       @person.unfavorite! activity
     end
@@ -543,8 +543,8 @@ describe Lotus::Person do
       activity = Lotus::Activity.new
 
       @person.activities.expects(:post!)
-        .with(has_entries(:object_uid  => activity.id,
-                          :object_type => 'Activity'))
+        .with(has_entries(:external_object_id   => activity.id,
+                          :external_object_type => 'Activity'))
 
       @person.share! activity
     end

@@ -15,11 +15,11 @@ module Lotus
     belongs_to :author, :class_name => 'Lotus::Author'
 
     # Our contributions.
-    key :activities_id,    ObjectId
+    key :activities_id,     ObjectId
     belongs_to :activities, :class_name => 'Lotus::Aggregate'
 
     # The combined contributions of ourself and others we follow.
-    key :timeline_id,      ObjectId
+    key :timeline_id,     ObjectId
     belongs_to :timeline, :class_name => 'Lotus::Aggregate'
 
     # The things we like.
@@ -31,11 +31,11 @@ module Lotus
     belongs_to :shared, :class_name => 'Lotus::Aggregate'
 
     # Replies to our stuff.
-    key :replies_id,       ObjectId
+    key :replies_id,     ObjectId
     belongs_to :replies, :class_name => 'Lotus::Aggregate'
 
     # Stuff that mentions us.
-    key :mentions_id,      ObjectId
+    key :mentions_id,     ObjectId
     belongs_to :mentions, :class_name => 'Lotus::Aggregate'
 
     # The people that follow us.
@@ -53,8 +53,8 @@ module Lotus
 
     def create_author
       self.author = Lotus::Author.create(:uri   => "/people/#{self.id}",
-                                        :uid   => "/people/#{self.id}",
-                                        :local => true)
+                                         :uid   => "/people/#{self.id}",
+                                         :local => true)
     end
 
     def create_aggregates
@@ -91,11 +91,11 @@ module Lotus
       end
 
       # Add the activity
-      self.activities.post!(:verb => :follow,
-                            :actor_id => self.author.id,
-                            :actor_type => 'Author',
-                            :object_uid => author.id,
-                            :object_type => 'Author')
+      self.activities.post!(:verb                 => :follow,
+                            :actor_id             => self.author.id,
+                            :actor_type           => 'Author',
+                            :external_object_id   => author.id,
+                            :external_object_type => 'Author')
     end
 
     # Updates so that we do not follow the given Author.
@@ -117,11 +117,11 @@ module Lotus
       end
 
       # Add the activity
-      self.activities.post!(:verb => :"stop-following",
-                            :actor_id => self.author.id,
-                            :actor_type => 'Author',
-                            :object_uid => author.id,
-                            :object_type => 'Author')
+      self.activities.post!(:verb                 => :"stop-following",
+                            :actor_id             => self.author.id,
+                            :actor_type           => 'Author',
+                            :external_object_id   => author.id,
+                            :external_object_type => 'Author')
     end
 
     # Updates to show we are now followed by the given Author.
@@ -160,22 +160,22 @@ module Lotus
     def favorite!(activity)
       self.favorites.repost! activity
 
-      self.activities.post!(:verb => :favorite,
-                            :actor_id => self.author.id,
-                            :actor_type => 'Author',
-                            :object_uid => activity.id,
-                            :object_type => 'Activity')
+      self.activities.post!(:verb                 => :favorite,
+                            :actor_id             => self.author.id,
+                            :actor_type           => 'Author',
+                            :external_object_id   => activity.id,
+                            :external_object_type => 'Activity')
     end
 
     # Remove the given Activity from our list of favorites.
     def unfavorite!(activity)
       self.favorites.delete! activity
 
-      self.activities.post!(:verb => :unfavorite,
-                            :actor_id => self.author.id,
-                            :actor_type => 'Author',
-                            :object_uid => activity.id,
-                            :object_type => 'Activity')
+      self.activities.post!(:verb                 => :unfavorite,
+                            :actor_id             => self.author.id,
+                            :actor_type           => 'Author',
+                            :external_object_id   => activity.id,
+                            :external_object_type => 'Activity')
     end
 
     # Add the given Activity to our list of those that mention us.
@@ -210,11 +210,11 @@ module Lotus
       self.timeline.repost! activity
       self.shared.repost!   activity
 
-      self.activities.post!(:verb => :share,
-                            :actor_id => self.author.id,
-                            :actor_type => 'Author',
-                            :object_uid => activity.id,
-                            :object_type => 'Activity')
+      self.activities.post!(:verb                 => :share,
+                            :actor_id             => self.author.id,
+                            :actor_type           => 'Author',
+                            :external_object_id   => activity.id,
+                            :external_object_type => 'Activity')
     end
 
     # Deliver an external Activity from somebody we follow.
