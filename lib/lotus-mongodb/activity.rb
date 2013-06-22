@@ -300,7 +300,7 @@ module Lotus
 
       object = "something"
       activity = self
-      case self.object_type
+      case self.external_object_type
       when 'Activity'
         embedded_activity = Lotus::Activity.find_by_id(self.external_object_id)
         activity = embedded_activity if embedded_activity
