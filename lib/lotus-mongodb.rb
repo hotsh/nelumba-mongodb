@@ -14,7 +14,9 @@ require "lotus-mongodb/person"
 require "lotus-mongodb/authorization"
 require "lotus-mongodb/author"
 require "lotus-mongodb/avatar"
+
 require "lotus-mongodb/note"
+require "lotus-mongodb/article"
 require "lotus-mongodb/comment"
 
 module Lotus
