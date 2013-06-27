@@ -18,6 +18,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   #gem.add_dependency "lotus"
+  gem.add_dependency "redcarpet"    # Markdown renderer
   gem.add_dependency "bson_ext"     # Database
   gem.add_dependency "mongo_mapper" # Database
   gem.add_dependency "bcrypt-ruby"  # Basic Authentication

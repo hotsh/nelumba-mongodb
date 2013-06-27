@@ -7,6 +7,7 @@ module Lotus
         belongs_to :author, :class_name => 'Lotus::Author'
         key :author_id, ObjectId
 
+        key :title
         key :uid
         key :url
         key :display_name
