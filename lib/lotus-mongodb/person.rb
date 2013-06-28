@@ -194,8 +194,7 @@ module Lotus
         activity["actor_id"] = self.author_id
         activity["actor_type"] = 'Author'
 
-        activity["verb"] = :post unless activity["verb"]
-        activity["type"] = :note unless activity["type"]
+        activity["verb"] = :post unless activity["verb"] || activity[:verb]
 
         # Create a new activity
         activity = Activity.create!(activity)
