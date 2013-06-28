@@ -19,10 +19,12 @@ module Lotus
 
     # Generates content field with the markdown field.
     def render_markdown
-      markdown = Redcarpet::Markdown.new(
-                   Redcarpet::Render::HTML, :autolink            => true,
-                                            :space_after_headers => true)
-      self.content = markdown.render(self.markdown)
+      return if self.markdown.nil?
+
+      render_as = Redcarpet::Render::HTML
+      engine = Redcarpet::Markdown.new(render_as, :autolink            => true,
+                                                  :space_after_headers => true)
+      self.content = engine.render(self.markdown)
     end
   end
 end
