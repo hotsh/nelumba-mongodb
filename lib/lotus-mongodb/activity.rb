@@ -2,6 +2,11 @@ module Lotus
   class Activity
     include Lotus::Object
 
+    STANDARD_TYPES = [:article, :audio, :bookmark, :comment, :file, :folder,
+                      :group, :list, :note, :person, :photo, :"photo-album",
+                      :place, :playlist, :product, :review, :service, :status,
+                      :video]
+
     # All Activities originate from one particular Feed.
     key :feed_id, ObjectId
     belongs_to :feed, :class_name => 'Lotus::Feed'
@@ -81,6 +86,15 @@ module Lotus
     end
 
     public
+
+    # Intern, for consistency, standard object types.
+    def type=(type)
+      if STANDARD_TYPES.map(&:to_s).include? type
+        type = type.intern
+      end
+
+      super type
+    end
 
     # Set the actor.
     def actor=(obj)
