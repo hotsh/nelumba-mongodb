@@ -25,6 +25,10 @@ module Lotus
           self.updated_at
         end
 
+        def self.find_by_id(id)
+          Lotus::Activity.object_by_id_and_type(id, self)
+        end
+
         embedded_in :'Lotus::Activity'
       end
     end

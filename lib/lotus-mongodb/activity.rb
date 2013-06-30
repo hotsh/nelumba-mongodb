@@ -82,6 +82,30 @@ module Lotus
 
     public
 
+    def self.article_by_id(id)
+      self.object_by_id_and_type(id, Lotus::Article)
+    end
+
+    def self.note_by_id(id)
+      self.object_by_id_and_type(id, Lotus::Note)
+    end
+
+    def self.object_by_id(id)
+      oid = id
+      if id.is_a? String
+        oid = BSON::ObjectId.from_string(id)
+      end
+
+      activity = Lotus::Activity.first("embedded_object._id" => oid)
+      activity.object if activity
+    end
+
+    def self.object_by_id_and_type(id, type)
+      obj = self.object_by_id(id)
+      return obj if obj.is_a? type
+      nil
+    end
+
     # Intern, for consistency, standard object types.
     def type=(type)
       if STANDARD_TYPES.map(&:to_s).include? type
