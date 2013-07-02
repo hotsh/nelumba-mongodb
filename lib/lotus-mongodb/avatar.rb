@@ -17,17 +17,13 @@ module Lotus
     # Log modification.
     timestamps!
 
-    # Create a new Avatar from the given url
-    def self.from_url!(author, url, options = {})
+    # Create a new Avatar from the given blob
+    def self.from_blob!(author, blob, options = {})
       avatar = Avatar.new(:author_id => author.id,
                           :sizes     => options[:sizes])
 
-      # Pull image down
-      response = self.pull_url(url, options[:content_type])
-      return nil unless response.kind_of? Net::HTTPSuccess
-
       image = Magick::ImageList.new
-      image.from_blob(response.body)
+      image.from_blob(blob)
 
       # Store the content_type
       avatar.content_type = image.mime_type
@@ -52,6 +48,15 @@ module Lotus
 
       avatar.save
       avatar
+    end
+
+    # Create a new Avatar from the given url
+    def self.from_url!(author, url, options = {})
+      # Pull image down
+      response = self.pull_url(url, options[:content_type])
+      return nil unless response.kind_of? Net::HTTPSuccess
+
+      self.from_blob!(author, response.body, options)
     end
 
     def url(size = nil)
