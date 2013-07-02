@@ -68,6 +68,9 @@ module Lotus
     # Ensure that url and uid for the activity are set
     before_create :ensure_uid_and_url
 
+    # Scrape content for mentions
+    before_create :scrape_mentions
+
     private
 
     # Ensure uid and url are established. If they don't exist, just use urls
@@ -78,6 +81,16 @@ module Lotus
         self.url = "/activities/#{self.id}"
         self.save
       end
+    end
+
+    # Scrape content for username mentions.
+    def scrape_mentions
+      return if self.object.nil?
+      authors = self.object.mentions do |username, domain|
+        i = Identity.first(:username => /^#{Regexp.escape(username)}$/i)
+        i.author if i
+      end
+      self.mentions_ids = authors.map(&:id)
     end
 
     public
