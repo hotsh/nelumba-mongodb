@@ -4,6 +4,5 @@ module Lotus
 
     key :text
     key :html
-    key :title
   end
 end
