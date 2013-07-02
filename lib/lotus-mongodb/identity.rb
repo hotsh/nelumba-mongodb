@@ -156,5 +156,14 @@ module Lotus
     def discover_author!
       Author.discover!("acct:#{self.username}@#{self.domain}")
     end
+
+    # Post an existing activity to the inbox of the person that owns this Identity
+    def post!(activity)
+      if self.author.local?
+        self.author.person.local_deliver! activity
+      else
+        self.inbox.repost! activity
+      end
+    end
   end
 end

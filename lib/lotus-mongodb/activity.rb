@@ -86,14 +86,23 @@ module Lotus
     # Scrape content for username mentions.
     def scrape_mentions
       return if self.object.nil?
+      return unless self.object.respond_to? :mentions
       authors = self.object.mentions do |username, domain|
         i = Identity.first(:username => /^#{Regexp.escape(username)}$/i)
         i.author if i
       end
-      self.mentions_ids = authors.map(&:id)
+      self.mentions_ids = authors.compact.map(&:id)
     end
 
     public
+
+    def mentions?(author)
+      if author.is_a? Lotus::Identity
+        author = author.author
+      end
+
+      self.mentions_ids.include? author.id
+    end
 
     def self.article_by_id(id)
       self.object_by_id_and_type(id, Lotus::Article)

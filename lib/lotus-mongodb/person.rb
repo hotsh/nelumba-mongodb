@@ -124,6 +124,14 @@ module Lotus
                             :external_object_type => 'Author')
     end
 
+    def follow?(author)
+      if author.is_a? Lotus::Identity
+        author = author.author
+      end
+
+      self.following_ids.include? author.id
+    end
+
     # Updates to show we are now followed by the given Author.
     def followed_by!(author)
       if author.is_a? Lotus::Identity
@@ -202,6 +210,11 @@ module Lotus
 
       self.activities.post! activity
       self.timeline.repost! activity
+
+      # Check mentions and replies
+      activity.mentions.each do |author|
+        author.identity.post! activity
+      end
     end
 
     # Repost an existing Activity.
@@ -248,7 +261,11 @@ module Lotus
 
     # Deliver an activity from within the server
     def local_deliver!(activity)
-      self.timeline.repost! activity
+      # If we follow, add to the timeline
+      self.timeline.repost! activity if self.follow?(activity.actor)
+
+      # Determine if it is a mention or reply and filter
+      self.mentions.repost! activity if activity.mentions? self.author
     end
   end
 end
