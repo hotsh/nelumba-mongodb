@@ -35,7 +35,7 @@ module Lotus
         self.storage_write "image_#{image.id}_#{width}x#{height}", resized.to_blob
       end
 
-      image.url = "/images/#{self.id}"
+      image.url = "/images/#{image.id}"
       image.uid = image.url
 
       image.save
