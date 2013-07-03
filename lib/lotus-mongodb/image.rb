@@ -119,5 +119,4 @@ module Lotus
       self.storage.put(data, :_id => id)
     end
   end
-  end
 end
