@@ -185,6 +185,7 @@ module Lotus
       return @object = self.embedded_object if self.embedded_object
       return @object = self unless self.external_object_type
 
+      return nil if self.external_object_type && !Lotus.const_defined(self.external_object_type)
       klass = Lotus.const_get(self.external_object_type) if self.external_object_type
       @object = klass.find_by_id(self.external_object_id) if klass && self.external_object_id
     end
