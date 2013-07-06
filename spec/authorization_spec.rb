@@ -84,7 +84,8 @@ describe Lotus::Authorization do
   describe "create" do
     before do
       Lotus::Authorization.stubs(:hash_password).returns("hashed")
-      @authorization = Lotus::Authorization.new
+      @authorization = Lotus::Authorization.new("username" => "wilkie",
+                                                "password" => "foobar")
 
       author = Lotus::Person.new
       author.stubs(:save).returns(true)
@@ -109,42 +110,61 @@ describe Lotus::Authorization do
       Lotus::Person.stubs(:create).returns(@person)
     end
 
-    it "should create a person" do
+    it "should create a person attached to this authorization" do
       Lotus::Person.expects(:create)
-            .with(:authorization_id => @authorization.id)
+            .with(has_entry(:authorization_id => @authorization.id))
             .returns(@person)
 
       @authorization.save
     end
 
-    it "should set the new person's author attributes to the username" do
-      @person.author.expects(:update_attributes)
-                    .with(has_entries(:nickname           => "wilkie",
-                                      :name               => "wilkie",
-                                      :display_name       => "wilkie",
-                                      :preferred_username => "wilkie"))
-                    .returns(true)
+    it "should create a Person with the given nickname" do
+      Lotus::Person.expects(:create)
+            .with(has_entry(:nickname => "wilkie"))
+            .returns(@person)
 
-      @authorization.username = "wilkie"
-      Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
+      @authorization.save
+    end
+
+    it "should create a Person with the given name" do
+      Lotus::Person.expects(:create)
+            .with(has_entry(:name => "wilkie"))
+            .returns(@person)
+
+      @authorization.save
+    end
+
+    it "should create a Person with the given display name" do
+      Lotus::Person.expects(:create)
+            .with(has_entry(:display_name => "wilkie"))
+            .returns(@person)
+
+      @authorization.save
+    end
+
+    it "should create a Person with the given preferred username" do
+      Lotus::Person.expects(:create)
+            .with(has_entry(:preferred_username => "wilkie"))
+            .returns(@person)
+
+      @authorization.save
     end
 
     it "should create an Lotus::Identity" do
       Lotus::Identity.expects(:create!)
-              .returns(@person)
+                     .returns(@person)
 
       Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
+                                   :password => "foobar")
     end
 
     it "should create an Lotus::Identity with the generated public key" do
       Lotus::Identity.expects(:create!)
-              .with(has_entry(:public_key, "PUBKEY"))
-              .returns(@person)
+                     .with(has_entry(:public_key, "PUBKEY"))
+                     .returns(@person)
 
       Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
+                                   :password => "foobar")
     end
 
     it "should create an Lotus::Identity with the given username" do
@@ -154,16 +174,16 @@ describe Lotus::Authorization do
 
       @authorization.username = "wilkie"
       Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
+                                   :password => "foobar")
     end
 
     it "should create an Lotus::Identity with the new person's author" do
       Lotus::Identity.expects(:create!)
-              .with(has_entry(:author_id, @person.author.id))
+              .with(has_entry(:person_id, @person.id))
               .returns(@person)
 
       Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
+                                   :password => "foobar")
     end
 
     it "should create an Lotus::Identity with person's salmon endpoint" do

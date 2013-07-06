@@ -40,19 +40,18 @@ module Lotus
     private
 
     def create_person_and_identity
-      person = Person.create(:authorization_id => self.id)
-      person.author.update_attributes(:nickname => username,
-                                      :name => username,
-                                      :display_name => username,
-                                      :preferred_username => username)
-      person.author.save
+      person = Person.create(:authorization_id => self.id,
+                             :nickname => self.username,
+                             :name => self.username,
+                             :display_name => self.username,
+                             :preferred_username => self.username)
 
       keypair = ::Lotus::Crypto.new_keypair
 
       self.identity = Lotus::Identity.create!(
         :username => self.username,
         :domain => "www.example.com",
-        :author_id => person.author.id,
+        :person_id => person.id,
         :public_key => keypair.public_key,
         :salmon_endpoint => "/people/#{person.id}/salmon",
         :dialback_endpoint => "/people/#{person.id}/dialback",
