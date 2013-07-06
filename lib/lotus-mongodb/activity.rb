@@ -153,6 +153,7 @@ module Lotus
 
     # Get the actor.
     def actor
+      return nil if self.actor_type && !Lotus.const_defined?(self.actor_type)
       klass = Lotus.const_get(self.actor_type) if self.actor_type
       @actor = klass.first(:id => self.actor_id) if klass && self.actor_id
     end
