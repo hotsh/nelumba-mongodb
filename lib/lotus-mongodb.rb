@@ -12,7 +12,6 @@ require "lotus-mongodb/activity"
 require "lotus-mongodb/feed"
 require "lotus-mongodb/person"
 require "lotus-mongodb/authorization"
-require "lotus-mongodb/author"
 require "lotus-mongodb/avatar"
 
 require "lotus-mongodb/note"

@@ -10,7 +10,7 @@ def create_authorization(params)
   Lotus::Authorization.stubs(:hash_password).returns("hashed")
   authorization = Lotus::Authorization.new(params)
 
-  author = Lotus::Author.new
+  author = Lotus::Person.new
   author.stubs(:save).returns(true)
   author.stubs(:update_attributes).returns(true)
 
@@ -86,7 +86,7 @@ describe Lotus::Authorization do
       Lotus::Authorization.stubs(:hash_password).returns("hashed")
       @authorization = Lotus::Authorization.new
 
-      author = Lotus::Author.new
+      author = Lotus::Person.new
       author.stubs(:save).returns(true)
       author.stubs(:update_attributes).returns(true)
 

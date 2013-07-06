@@ -110,7 +110,7 @@ describe Lotus::Feed do
       Lotus::Feed.new(lotus_feed).uid.must_equal "UID"
     end
 
-    it "should find or create Lotus::Authors for those given in Lotus::Feed" do
+    it "should find or create Lotus::Persons for those given in Lotus::Feed" do
       lotus_feed = Lotus::Feed.new
       lotus_feed.stubs(:to_hash).returns({:id => "UID",
                                           :authors => [{:uid => "author UID",
@@ -118,13 +118,13 @@ describe Lotus::Feed do
                                           :contributors => [],
                                           :items => []})
 
-      author = Lotus::Author.new
-      Lotus::Author.expects(:find_or_create_by_uid!).returns(author)
+      author = Lotus::Person.new
+      Lotus::Person.expects(:find_or_create_by_uid!).returns(author)
 
       Lotus::Feed.new(lotus_feed)
     end
 
-    it "should find or create Lotus::Authors for contributors given in Lotus::Feed" do
+    it "should find or create Lotus::Persons for contributors given in Lotus::Feed" do
       lotus_feed = Lotus::Feed.new
       lotus_feed.stubs(:to_hash).returns({:id => "UID",
                                           :contributors => [
@@ -133,13 +133,13 @@ describe Lotus::Feed do
                                           :authors => [],
                                           :items => []})
 
-      author = Lotus::Author.new
-      Lotus::Author.expects(:find_or_create_by_uid!).returns(author)
+      author = Lotus::Person.new
+      Lotus::Person.expects(:find_or_create_by_uid!).returns(author)
 
       Lotus::Feed.new(lotus_feed)
     end
 
-    it "should find or create Lotus::Authors for contributors given in Lotus::Feed" do
+    it "should find or create Lotus::Persons for contributors given in Lotus::Feed" do
       lotus_feed = Lotus::Feed.new
       lotus_feed.stubs(:to_hash).returns({:id => "UID",
                                           :contributors => [],

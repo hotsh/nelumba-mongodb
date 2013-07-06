@@ -70,7 +70,7 @@ describe Lotus::Avatar do
 
       Magick::ImageList.stubs(:new)
 
-      author = Lotus::Author.create
+      author = Lotus::Person.create
       Lotus::Avatar.from_url!(author, "bogus").must_equal nil
     end
 
@@ -103,7 +103,7 @@ describe Lotus::Avatar do
       image.stubs(:resize_to_fill).with(48, 48).returns(new_image)
       Magick::ImageList.stubs(:new).returns(image)
 
-      author = Lotus::Author.create
+      author = Lotus::Person.create
 
       io = stub('IO')
       io.stubs(:put)
@@ -147,7 +147,7 @@ describe Lotus::Avatar do
 
       Magick::ImageList.stubs(:new)
 
-      author = Lotus::Author.create
+      author = Lotus::Person.create
       Lotus::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
 
       http.expects(:use_ssl=).with(true)
@@ -180,7 +180,7 @@ describe Lotus::Avatar do
       image.stubs(:mime_type).returns("MIME")
       Magick::ImageList.stubs(:new).returns(image)
 
-      author = Lotus::Author.create
+      author = Lotus::Person.create
 
       Lotus::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
 
@@ -212,7 +212,7 @@ describe Lotus::Avatar do
       image.stubs(:mime_type).returns("MIME")
       Magick::ImageList.stubs(:new).returns(image)
 
-      author = Lotus::Author.create
+      author = Lotus::Person.create
 
       io = stub('IO')
       io.stubs(:put)
@@ -260,7 +260,7 @@ describe Lotus::Avatar do
       image.stubs(:resize_to_fill).with(48, 48).returns(new_image)
       Magick::ImageList.stubs(:new).returns(image)
 
-      author = Lotus::Author.create
+      author = Lotus::Person.create
 
       io = stub('IO')
       io.stubs(:put)

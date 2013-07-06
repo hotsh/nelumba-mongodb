@@ -190,12 +190,12 @@ describe Lotus::Identity do
     end
   end
 
-  describe "discover_author!" do
-    it "should discover the author through Lotus::Author" do
+  describe "discover_person!" do
+    it "should discover the author through Lotus::Person" do
       identity = Lotus::Identity.new(:username => "wilkie", :domain => "rstat.us")
-      Lotus::Author.expects(:discover!).with("acct:wilkie@rstat.us").returns("author")
+      Lotus::Person.expects(:discover!).with("acct:wilkie@rstat.us").returns("author")
 
-      identity.discover_author!
+      identity.discover_person!
     end
   end
 

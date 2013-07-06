@@ -50,20 +50,20 @@ module Lotus
     remove_method :replies
     many :replies, :in => :replies_ids, :class_name => 'Lotus::Activity'
 
-    # Contains the Authors this Activity mentions.
+    # Contains the Persons this Activity mentions.
     key :mentions_ids, Array
     remove_method :mentions
-    many :mentions, :in => :mentions_ids, :class_name => 'Lotus::Author'
+    many :mentions, :in => :mentions_ids, :class_name => 'Lotus::Person'
 
-    # Contains the Authors that have shared this activity
+    # Contains the Persons that have shared this activity
     key :shares_ids, Array
     remove_method :shares
-    many :shares, :in => :shares_ids, :class_name => 'Lotus::Author'
+    many :shares, :in => :shares_ids, :class_name => 'Lotus::Person'
 
-    # Contains the Authors that have liked this activity
+    # Contains the Persons that have liked this activity
     key :likes_ids, Array
     remove_method :likes
-    many :likes, :in => :likes_ids, :class_name => 'Lotus::Author'
+    many :likes, :in => :likes_ids, :class_name => 'Lotus::Person'
 
     # Ensure that url and uid for the activity are set
     before_create :ensure_uid_and_url
@@ -91,6 +91,7 @@ module Lotus
         i = Identity.first(:username => /^#{Regexp.escape(username)}$/i)
         i.author if i
       end
+      authors ||= []
       self.mentions_ids = authors.compact.map(&:id)
     end
 
@@ -249,7 +250,7 @@ module Lotus
     # :verb         => The action being performed by the subject.
     # :subject      => The entity performing the action.
     # :object       => The object the action is being applied to. Could be an
-    #                    Author or Activity
+    #                    Person or Activity
     # :object_type  => How to interpret the object of the action.
     # :object_owner => The entity that owns the object of the action.
     # :when         => The Date when the activity took place.
@@ -257,7 +258,7 @@ module Lotus
     def parts_of_speech
       object_owner = nil
       object_owner = self.object.actor if self.object.respond_to?(:actor)
-      object_owner = self.object if self.object.is_a?(Lotus::Author)
+      object_owner = self.object if self.object.is_a?(Lotus::Person)
       object_owner = self.actor unless self.external_object_type
 
       {
@@ -280,7 +281,7 @@ module Lotus
       identity = Lotus::Identity.discover!(notification.account)
       if notification.verified? identity.return_or_discover_public_key
         # Then add it to our feed in the appropriate place
-        identity.discover_author!
+        identity.discover_person!
         internal_activity = Lotus::Activity.find_from_notification(notification)
 
         # If it already exists, update it
@@ -288,7 +289,7 @@ module Lotus
           internal_activity.update_from_notification(notification, true)
         else
           internal_activity = Lotus::Activity.create!(notification.activity)
-          internal_author = Lotus::Author.find_or_create_by_uid!(
+          internal_author = Lotus::Person.find_or_create_by_uid!(
                               notification.activity.actor.uid)
 
           internal_activity.actor = internal_author
@@ -310,7 +311,7 @@ module Lotus
       identity = Lotus::Identity.discover!(notification.account)
       if force or notification.verified?(identity.return_or_discover_public_key)
         # Then add it to our feed in the appropriate place
-        identity.discover_author!
+        identity.discover_person!
 
         attributes = notification.activity.to_hash
         attributes.delete :uid

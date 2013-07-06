@@ -100,9 +100,9 @@ describe Lotus::Activity do
   end
 
   describe "#actor=" do
-    it "should assign actor_id to the id of a given Lotus::Author" do
+    it "should assign actor_id to the id of a given Lotus::Person" do
       activity = Lotus::Activity.new
-      actor = Lotus::Author.new
+      actor = Lotus::Person.new
 
       activity.actor = actor
 
@@ -118,13 +118,13 @@ describe Lotus::Activity do
       activity.actor_id.must_equal actor.id
     end
 
-    it "should assign actor_type appropriately for a given Lotus::Author" do
+    it "should assign actor_type appropriately for a given Lotus::Person" do
       activity = Lotus::Activity.new
-      actor = Lotus::Author.new
+      actor = Lotus::Person.new
 
       activity.actor = actor
 
-      activity.actor_type.must_equal "Author"
+      activity.actor_type.must_equal "Person"
     end
 
     it "should assign actor_type appropriately for a given Lotus::Activity" do
@@ -138,13 +138,13 @@ describe Lotus::Activity do
   end
 
   describe "#actor" do
-    it "should retrieve a stored Lotus::Author" do
-      actor = Lotus::Author.create
+    it "should retrieve a stored Lotus::Person" do
+      actor = Lotus::Person.create
       activity = Lotus::Activity.new(:actor_id => actor.id,
-                              :actor_type => "Author")
+                              :actor_type => "Person")
 
       activity.actor.id.must_equal actor.id
-      activity.actor.class.must_equal Lotus::Author
+      activity.actor.class.must_equal Lotus::Person
     end
 
     it "should retrieve a stored Lotus::Activity" do
@@ -265,8 +265,8 @@ describe Lotus::Activity do
       activity.parts_of_speech[:object_type].must_equal :note
     end
 
-    it "should yield the object when it is an Lotus::Author" do
-      author = Lotus::Author.create(:nickname => "wilkie")
+    it "should yield the object when it is an Lotus::Person" do
+      author = Lotus::Person.create(:nickname => "wilkie")
       activity = Lotus::Activity.create(:object => author)
 
       activity.parts_of_speech[:object].nickname.must_equal "wilkie"
@@ -286,7 +286,7 @@ describe Lotus::Activity do
     end
 
     it "should yield the object owner as actor of embedded Lotus::Activity" do
-      author = Lotus::Author.create(:nickname => "wilkie")
+      author = Lotus::Person.create(:nickname => "wilkie")
       object_activity = Lotus::Activity.create(:verb  => :follow,
                                         :actor => author)
       activity = Lotus::Activity.create(:object => object_activity)
@@ -294,15 +294,15 @@ describe Lotus::Activity do
       activity.parts_of_speech[:object_owner].nickname.must_equal "wilkie"
     end
 
-    it "should yield the object owner as the embedded Lotus::Author" do
-      author = Lotus::Author.create(:nickname => "wilkie")
+    it "should yield the object owner as the embedded Lotus::Person" do
+      author = Lotus::Person.create(:nickname => "wilkie")
       activity = Lotus::Activity.create(:object => author)
 
       activity.parts_of_speech[:object_owner].nickname.must_equal "wilkie"
     end
 
     it "should yield the object owner as actor when object isn't embedded" do
-      author = Lotus::Author.create(:nickname => "wilkie")
+      author = Lotus::Person.create(:nickname => "wilkie")
       activity = Lotus::Activity.create(:actor => author)
 
       activity.parts_of_speech[:object_owner].nickname.must_equal "wilkie"
@@ -315,7 +315,7 @@ describe Lotus::Activity do
     end
 
     it "should yield the subject as the actor" do
-      author = Lotus::Author.create(:nickname => "wilkie")
+      author = Lotus::Person.create(:nickname => "wilkie")
       activity = Lotus::Activity.create(:actor => author)
 
       activity.parts_of_speech[:subject].nickname.must_equal "wilkie"
@@ -330,7 +330,7 @@ describe Lotus::Activity do
 
   describe "create_from_notification!" do
     before do
-      activity_author = Lotus::Author.create :uri => "acct:wilkie@rstat.us",
+      activity_author = Lotus::Person.create :uri => "acct:wilkie@rstat.us",
                                           :uid => "AUTHOR ID"
 
       activity = Lotus::Activity.new :verb  => :follow,
@@ -344,12 +344,12 @@ describe Lotus::Activity do
       @notification.stubs(:account).returns("acct:wilkie@rstat.us")
       @notification.stubs(:verified?).returns(true)
 
-      Lotus::Author.stubs(:find_or_create_by_uid!).returns(activity_author)
-      Lotus::Author.stubs(:find_by_id).returns(activity_author)
+      Lotus::Person.stubs(:find_or_create_by_uid!).returns(activity_author)
+      Lotus::Person.stubs(:find_by_id).returns(activity_author)
 
       @identity = Lotus::Identity.new
       @identity.stubs(:return_or_discover_public_key).returns("RSA_PUBLIC_KEY")
-      @identity.stubs(:discover_author!)
+      @identity.stubs(:discover_person!)
       @identity.stubs(:author).returns(activity_author)
 
       Lotus::Identity.stubs(:discover!).with("acct:wilkie@rstat.us").returns(@identity)
@@ -385,7 +385,7 @@ describe Lotus::Activity do
     it "should return nil if the update exists under a different author" do
       old = Lotus::Activity.create_from_notification!(@notification)
 
-      activity_author = Lotus::Author.create :uri => "acct:bogus@rstat.us",
+      activity_author = Lotus::Person.create :uri => "acct:bogus@rstat.us",
                                           :uid => "AUTHOR ID"
       activity = Lotus::Activity.new :verb  => :follow,
                                      :uid   => "1",

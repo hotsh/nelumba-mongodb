@@ -8,7 +8,7 @@ module Lotus
 
         include MongoMapper::Document
 
-        belongs_to :author, :class_name => 'Lotus::Author'
+        belongs_to :author, :class_name => 'Lotus::Person'
         key :author_id, ObjectId
 
         key :title

@@ -4,9 +4,9 @@ module Lotus
 
     include MongoMapper::Document
 
-    # The avatar belongs to a particular Author
+    # The avatar belongs to a particular Person
     key :author_id, ObjectId
-    belongs_to :author, :class_name => 'Lotus::Author'
+    belongs_to :author, :class_name => 'Lotus::Person'
 
     # The array of sizes this avatar has stored.
     key :sizes, Array, :default => []

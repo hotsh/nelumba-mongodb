@@ -2,12 +2,71 @@ require_relative 'helper'
 
 describe Lotus::Person do
   describe "Schema" do
-    it "should have an authorization id" do
-      Lotus::Person.keys.keys.must_include "authorization_id"
+    it "should have a uid" do
+      Lotus::Person.keys.keys.must_include "uid"
     end
 
-    it "should have an author id" do
-      Lotus::Person.keys.keys.must_include "author_id"
+    it "should have a nickname" do
+      Lotus::Person.keys.keys.must_include "nickname"
+    end
+
+    it "should have an extended_name" do
+      Lotus::Person.keys.keys.must_include "extended_name"
+    end
+
+    it "should have a uri" do
+      Lotus::Person.keys.keys.must_include "uri"
+    end
+
+    it "should have an email" do
+      Lotus::Person.keys.keys.must_include "email"
+    end
+
+    it "should have a name" do
+      Lotus::Person.keys.keys.must_include "name"
+    end
+
+    it "should have an organization" do
+      Lotus::Person.keys.keys.must_include "organization"
+    end
+
+    it "should have an address" do
+      Lotus::Person.keys.keys.must_include "address"
+    end
+
+    it "should have a gender" do
+      Lotus::Person.keys.keys.must_include "gender"
+    end
+
+    it "should have a note" do
+      Lotus::Person.keys.keys.must_include "note"
+    end
+
+    it "should have a display_name" do
+      Lotus::Person.keys.keys.must_include "display_name"
+    end
+
+    it "should have a preferred_username" do
+      Lotus::Person.keys.keys.must_include "preferred_username"
+    end
+
+    it "should have a birthday" do
+      Lotus::Person.keys.keys.must_include "birthday"
+    end
+
+    it "should have an anniversary" do
+      Lotus::Person.keys.keys.must_include "anniversary"
+    end
+
+    it "should have a created_at" do
+      Lotus::Person.keys.keys.must_include "created_at"
+    end
+
+    it "should have a updated_at" do
+      Lotus::Person.keys.keys.must_include "updated_at"
+    end
+    it "should have an authorization id" do
+      Lotus::Person.keys.keys.must_include "authorization_id"
     end
 
     it "should have an activities id" do
@@ -45,18 +104,13 @@ describe Lotus::Person do
 
   describe "create" do
     before do
-      @author = Lotus::Author.new
-      Lotus::Author.stubs(:create).returns(@author)
+      @author = Lotus::Person.new
+      Lotus::Person.stubs(:create).returns(@author)
 
       @aggregate = Lotus::Aggregate.new
       Lotus::Aggregate.stubs(:create).returns(@aggregate)
 
       @person = Lotus::Person.new
-    end
-
-    it "should create an author upon creation" do
-      @person.expects(:author=).with(@author)
-      @person.run_callbacks :create
     end
 
     it "should create an activities aggregate upon creation" do
@@ -105,7 +159,8 @@ describe Lotus::Person do
       activities.stubs(:post!)
       @person.stubs(:activities).returns(activities)
 
-      @author = Lotus::Author.new({:local => false})
+      @author = Lotus::Person.new({:local => false})
+      @author.stubs(:local?).returns(false)
 
       feed = Lotus::Feed.new
       feed.stubs(:save)
@@ -126,7 +181,7 @@ describe Lotus::Person do
       @person.stubs(:author).returns(@author)
     end
 
-    it "should add the given remote Lotus::Author to the following list" do
+    it "should add the given remote Lotus::Person to the following list" do
       @person.follow! @author
       @person.following_ids.must_include @author.id
     end
@@ -136,27 +191,19 @@ describe Lotus::Person do
       @person.following_ids.must_include @author.id
     end
 
-    it "should add the given local Lotus::Author to the following list" do
-      @author.local = true
+    it "should add the given local Lotus::Person to the following list" do
+      @author.stubs(:local?).returns(true)
 
-      local_person = Lotus::Person.new
-      local_person.stubs(:save)
-      @author.stubs(:person).returns(local_person)
-
-      local_person.stubs(:followed_by!)
+      @author.stubs(:followed_by!)
 
       @person.follow! @author
       @person.following_ids.must_include @author.id
     end
 
-    it "should add self to the local Lotus::Author's followers list" do
-      @author.local = true
+    it "should add self to the local Lotus::Person's followers list" do
+      @author.stubs(:local?).returns(true)
 
-      local_person = Lotus::Person.new
-      local_person.stubs(:save)
-      @author.stubs(:person).returns(local_person)
-
-      local_person.expects(:followed_by!)
+      @author.expects(:followed_by!)
 
       @person.follow! @author
     end
@@ -177,7 +224,7 @@ describe Lotus::Person do
       activities.stubs(:post!)
       @person.stubs(:activities).returns(activities)
 
-      @author = Lotus::Author.new({:local => false})
+      @author = Lotus::Person.new
 
       feed = Lotus::Feed.new
       feed.stubs(:save)
@@ -195,12 +242,10 @@ describe Lotus::Person do
       @author.stubs(:identity).returns(identity)
       @author.stubs(:save)
 
-      @person.stubs(:author).returns(@author)
-
       @person.following_ids = [@author.id]
     end
 
-    it "should remove the given remote Lotus::Author from the following list" do
+    it "should remove the given remote Lotus::Person from the following list" do
       @person.unfollow! @author
       @person.following_ids.wont_include @author.id
     end
@@ -210,8 +255,8 @@ describe Lotus::Person do
       @person.following_ids.wont_include @author.id
     end
 
-    it "should remove the given local Lotus::Author from the following list" do
-      @author.local = true
+    it "should remove the given local Lotus::Person from the following list" do
+      @author.stubs(:local).returns(true)
 
       local_person = Lotus::Person.new
       local_person.stubs(:save)
@@ -223,14 +268,10 @@ describe Lotus::Person do
       @person.following_ids.wont_include @author.id
     end
 
-    it "should remove self from the local Lotus::Author's followers list" do
-      @author.local = true
+    it "should remove self from the local Lotus::Person's followers list" do
+      @author.stubs(:local?).returns(true)
 
-      local_person = Lotus::Person.new
-      local_person.stubs(:save)
-      @author.stubs(:person).returns(local_person)
-
-      local_person.expects(:unfollowed_by!)
+      @author.expects(:unfollowed_by!)
 
       @person.unfollow! @author
     end
@@ -245,7 +286,7 @@ describe Lotus::Person do
       @person.stubs(:save)
       @person.stubs(:activities).returns(activities)
 
-      @author = Lotus::Author.new
+      @author = Lotus::Person.new
       @author.stubs(:save)
 
       aggregate = Lotus::Aggregate.new
@@ -266,7 +307,7 @@ describe Lotus::Person do
       @author.stubs(:identity).returns(@identity)
     end
 
-    it "should add the given remote Lotus::Author to our followers list" do
+    it "should add the given remote Lotus::Person to our followers list" do
       @person.followed_by! @author
       @person.followers_ids.must_include @author.id
     end
@@ -291,7 +332,7 @@ describe Lotus::Person do
       @person.stubs(:save)
       @person.stubs(:activities).returns(activities)
 
-      @author = Lotus::Author.new
+      @author = Lotus::Person.new
       @author.stubs(:save)
 
       aggregate = Lotus::Aggregate.new
@@ -312,7 +353,7 @@ describe Lotus::Person do
       @author.stubs(:identity).returns(@identity)
     end
 
-    it "should remove the given remote Lotus::Author from our followers list" do
+    it "should remove the given remote Lotus::Person from our followers list" do
       @person.unfollowed_by! @author
       @person.followers_ids.wont_include @author.id
     end
@@ -335,7 +376,7 @@ describe Lotus::Person do
       favorites = Lotus::Aggregate.new
       favorites.stubs(:repost!)
 
-      author = Lotus::Author.new
+      author = Lotus::Person.new
 
       @person = Lotus::Person.new
       @person.stubs(:activities).returns(activities)
@@ -362,7 +403,7 @@ describe Lotus::Person do
 
       @person.activities.expects(:post!)
         .with(has_entries(:actor_id   => @person.author.id,
-                          :actor_type => 'Author'))
+                          :actor_type => 'Person'))
 
       @person.favorite! activity
     end
@@ -385,7 +426,7 @@ describe Lotus::Person do
       favorites = Lotus::Aggregate.new
       favorites.stubs(:delete!)
 
-      author = Lotus::Author.new
+      author = Lotus::Person.new
 
       @person = Lotus::Person.new
       @person.stubs(:activities).returns(activities)
@@ -412,7 +453,7 @@ describe Lotus::Person do
 
       @person.activities.expects(:post!)
         .with(has_entries(:actor_id   => @person.author.id,
-                          :actor_type => 'Author'))
+                          :actor_type => 'Person'))
 
       @person.unfavorite! activity
     end
@@ -501,7 +542,7 @@ describe Lotus::Person do
       @person.stubs(:shared).returns(Lotus::Aggregate.new)
       @person.stubs(:activities).returns(Lotus::Aggregate.new)
 
-      @person.stubs(:author).returns(Lotus::Author.new)
+      @person.stubs(:author).returns(Lotus::Person.new)
 
       @person.shared.stubs(:repost!)
       @person.timeline.stubs(:repost!)
@@ -534,7 +575,7 @@ describe Lotus::Person do
 
       @person.activities.expects(:post!)
         .with(has_entries(:actor_id  => @person.author.id,
-                          :actor_type => 'Author'))
+                          :actor_type => 'Person'))
 
       @person.share! activity
     end
@@ -547,6 +588,375 @@ describe Lotus::Person do
                           :external_object_type => 'Activity'))
 
       @person.share! activity
+    end
+  end
+
+  describe "discover!" do
+    it "should create an identity when author is discovered" do
+      identity = Lotus::Identity.new
+      identity.stubs(:to_hash).returns({})
+      identity.stubs(:author).returns({})
+      Lotus::Identity.stubs(:find_by_identifier).returns(nil)
+      Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
+
+      feed = Lotus::Feed.new
+      Lotus.stubs(:discover_feed).with(identity).returns(feed)
+
+      saved_feed = stub('Feed')
+      author = stub('Lotus::Person')
+      saved_feed.stubs(:authors).returns([author])
+      Lotus::Feed.stubs(:create!).with(feed).returns(saved_feed)
+
+      Lotus::Identity.expects(:create!).returns(identity)
+
+      Lotus::Person.discover! "wilkie@rstat.us"
+    end
+
+    it "should return false if identity cannot be discovered" do
+      Lotus.stubs(:discover_identity).returns(nil)
+
+      Lotus::Person.discover!("bogus@rstat.us").must_equal false
+    end
+
+    it "should return false if feed cannot be discovered" do
+      identity = Lotus::Identity.new
+      identity.stubs(:to_hash).returns({})
+      Lotus::Identity.stubs(:find_by_identifier).returns(nil)
+      Lotus.stubs(:discover_identity).returns(identity)
+      Lotus.stubs(:discover_feed).returns(nil)
+
+      Lotus::Person.discover!("bogus@rstat.us").must_equal false
+    end
+
+    it "should return Lotus::Person if does not exist" do
+      author = stub('Lotus::Person')
+      Lotus::Identity.stubs(:find_by_identifier).returns(nil)
+
+      identity = Lotus::Identity.new
+      identity.stubs(:to_hash).returns({})
+      identity.stubs(:author).returns(author)
+      Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
+
+      feed = Lotus::Feed.new
+      Lotus.stubs(:discover_feed).with(identity).returns(feed)
+
+      saved_feed = stub('Feed')
+      saved_feed.stubs(:authors).returns([author])
+      Lotus::Feed.stubs(:create!).with(feed).returns(saved_feed)
+
+      Lotus::Identity.stubs(:create!).returns(identity)
+
+      Lotus::Person.discover!("wilkie@rstat.us").must_equal author
+    end
+
+    it "should return existing Lotus::Person if it can" do
+      author = stub('Lotus::Person')
+
+      identity = Lotus::Identity.new
+      identity.stubs(:to_hash).returns({})
+      identity.stubs(:author).returns(author)
+
+      Lotus::Identity.stubs(:find_by_identifier).returns(identity)
+      Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(nil)
+
+      Lotus::Person.discover!("wilkie@rstat.us").must_equal author
+    end
+
+    it "should assign the Identity outbox to the discovered feed" do
+      identity = Lotus::Identity.new
+      identity.stubs(:to_hash).returns({})
+      identity.stubs(:author).returns({})
+      Lotus::Identity.stubs(:find_by_identifier).returns(nil)
+      Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
+
+      feed = Lotus::Feed.new
+      Lotus.stubs(:discover_feed).with(identity).returns(feed)
+
+      saved_feed = stub('Feed')
+      author = stub('Lotus::Person')
+      saved_feed.stubs(:authors).returns([author])
+      Lotus::Feed.stubs(:create!).with(feed).returns(saved_feed)
+
+      Lotus::Identity.expects(:create!)
+        .with(has_entry(:outbox, saved_feed))
+        .returns(identity)
+
+      Lotus::Person.discover! "wilkie@rstat.us"
+    end
+
+    it "should assign the Identity author to the discovered author" do
+      identity = Lotus::Identity.new
+      identity.stubs(:to_hash).returns({})
+      identity.stubs(:author).returns({})
+      Lotus::Identity.stubs(:find_by_identifier).returns(nil)
+      Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
+
+      feed = Lotus::Feed.new
+      Lotus.stubs(:discover_feed).with(identity).returns(feed)
+
+      saved_feed = stub('Feed')
+      author = stub('Lotus::Person')
+      saved_feed.stubs(:authors).returns([author])
+      Lotus::Feed.stubs(:create!).with(feed).returns(saved_feed)
+
+      Lotus::Identity.expects(:create!)
+        .with(has_entry(:author, author))
+        .returns(identity)
+
+      Lotus::Person.discover! "wilkie@rstat.us"
+    end
+  end
+
+  describe "#discover_feed!" do
+    it "should use Lotus to discover a feed from the identity" do
+      author = Lotus::Person.create!
+      identity = Lotus::Identity.create!(:person_id => author.id)
+
+      Lotus.expects(:discover_feed).with(identity)
+
+      author.discover_feed!
+    end
+  end
+
+  describe "sanitize_params" do
+    it "should allow extended name" do
+      Lotus::Person.sanitize_params({:extended_name => {}})
+        .keys.must_include :extended_name
+    end
+
+    it "should allow extended name's formatted field" do
+      hash = {"extended_name" => {:formatted => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:extended_name][:formatted]
+        .must_equal "foobar"
+    end
+
+    it "should allow extended name's given_name field" do
+      hash = {"extended_name" => {:given_name => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:extended_name][:given_name]
+        .must_equal "foobar"
+    end
+
+    it "should allow extended name's family_name field" do
+      hash = {"extended_name" => {:family_name => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:extended_name][:family_name]
+        .must_equal "foobar"
+    end
+
+    it "should allow extended name's honorific_prefix field" do
+      hash = {"extended_name" => {:honorific_prefix => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:extended_name][:honorific_prefix]
+        .must_equal "foobar"
+    end
+
+    it "should allow extended name's honorific_suffix field" do
+      hash = {"extended_name" => {:honorific_suffix => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:extended_name][:honorific_suffix]
+        .must_equal "foobar"
+    end
+
+    it "should allow extended name's middle_name field" do
+      hash = {"extended_name" => {:middle_name => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:extended_name][:middle_name]
+        .must_equal "foobar"
+    end
+
+    it "should allow organization" do
+      Lotus::Person.sanitize_params({"organization" => {}})
+        .keys.must_include :organization
+    end
+
+    it "should allow organization's name field" do
+      hash = {"organization" => {:name => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:organization][:name]
+        .must_equal "foobar"
+    end
+
+    it "should allow organization's department field" do
+      hash = {"organization" => {:department => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:organization][:department]
+        .must_equal "foobar"
+    end
+
+    it "should allow organization's title field" do
+      hash = {"organization" => {:title => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:organization][:title]
+        .must_equal "foobar"
+    end
+
+    it "should allow organization's type field" do
+      hash = {"organization" => {:type => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:organization][:type]
+        .must_equal "foobar"
+    end
+
+    it "should allow organization's start_date field" do
+      hash = {"organization" => {:start_date => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:organization][:start_date]
+        .must_equal "foobar"
+    end
+
+    it "should allow organization's end_date field" do
+      hash = {"organization" => {:end_date => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:organization][:end_date]
+        .must_equal "foobar"
+    end
+
+    it "should allow organization's description field" do
+      hash = {"organization" => {:description => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:organization][:description]
+        .must_equal "foobar"
+    end
+
+    it "should allow address" do
+      Lotus::Person.sanitize_params({"address" => {}})
+        .keys.must_include :address
+    end
+
+    it "should allow address's formatted field" do
+      hash = {"address" => {:formatted => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:address][:formatted]
+        .must_equal "foobar"
+    end
+
+    it "should allow address's street_address field" do
+      hash = {"address" => {:street_address => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:address][:street_address]
+        .must_equal "foobar"
+    end
+
+    it "should allow address's locality field" do
+      hash = {"address" => {:locality => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:address][:locality]
+        .must_equal "foobar"
+    end
+
+    it "should allow address's region field" do
+      hash = {"address" => {:region => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:address][:region]
+        .must_equal "foobar"
+    end
+
+    it "should allow address's country field" do
+      hash = {"address" => {:country => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:address][:country]
+        .must_equal "foobar"
+    end
+
+    it "should allow address's postal_code field" do
+      hash = {"address" => {:postal_code => "foobar"}}
+      Lotus::Person.sanitize_params(hash)[:address][:postal_code]
+        .must_equal "foobar"
+    end
+
+    it "should allow Lotus::Person keys" do
+      hash = {}
+      Lotus::Person.keys.keys.each do |k|
+        next if ["extended_name", "organization", "address", "_id"].include? k
+        hash[k] = "foobar"
+      end
+
+      hash = Lotus::Person.sanitize_params(hash)
+
+      Lotus::Person.keys.keys.each do |k|
+        next if ["extended_name", "organization", "address", "_id"].include? k
+        hash[k.intern].must_equal "foobar"
+      end
+    end
+
+    it "should convert strings to symbols" do
+      hash = {}
+      Lotus::Person.keys.keys.each do |k|
+        next if ["extended_name", "organization", "address", "_id"].include? k
+        hash[k] = "foobar"
+      end
+
+      hash = Lotus::Person.sanitize_params(hash)
+
+      Lotus::Person.keys.keys.each do |k|
+        next if ["extended_name", "organization", "address", "_id"].include? k
+        hash[k.intern].must_equal "foobar"
+      end
+    end
+
+    it "should not allow _id" do
+      hash = {"_id" => "bogus"}
+      hash = Lotus::Person.sanitize_params(hash)
+      hash.keys.wont_include "_id"
+    end
+
+    it "should not allow arbitrary keys" do
+      hash = {:bogus => "foobar"}
+
+      hash = Lotus::Person.sanitize_params(hash)
+
+      hash.keys.wont_include :bogus
+    end
+  end
+
+  describe "#short_name" do
+    it "should use display_name over all else" do
+      author = Lotus::Person.create(:display_name => "display",
+                             :name => "name",
+                             :preferred_username => "preferred",
+                             :nickname => "nickname",
+                             :uid => "unique")
+
+      author.short_name.must_equal "display"
+    end
+
+    it "should use name over all else when display name doesn't exist" do
+      author = Lotus::Person.create(:name => "name",
+                             :preferred_username => "preferred",
+                             :nickname => "nickname",
+                             :uid => "unique")
+
+      author.short_name.must_equal "name"
+    end
+
+    it "should use preferred_username when name and display_name don't exist" do
+      author = Lotus::Person.create(:preferred_username => "preferred",
+                             :nickname => "nickname",
+                             :uid => "unique")
+
+      author.short_name.must_equal "preferred"
+    end
+
+    it "should use nickname when it exists and others do not" do
+      author = Lotus::Person.create(:nickname => "nickname",
+                             :uid => "unique")
+
+      author.short_name.must_equal "nickname"
+    end
+
+    it "should use uid when all else fails" do
+      author = Lotus::Person.create(:uid => "unique")
+
+      author.short_name.must_equal "unique"
+    end
+  end
+
+  describe "#update_avatar!" do
+    it "should pass through the url to Avatar.from_url!" do
+      Lotus::Avatar.expects(:from_url!).with(anything, "avatar_url", anything)
+
+      author = Lotus::Person.create
+      author.update_avatar! "avatar_url"
+    end
+
+    it "should pass through author instance to Avatar.from_url!" do
+      author = Lotus::Person.create
+
+      Lotus::Avatar.expects(:from_url!).with(author, anything, anything)
+
+      author.update_avatar! "avatar_url"
+    end
+
+    it "should pass through appropriate avatar size" do
+      Lotus::Avatar.expects(:from_url!)
+        .with(anything, anything, has_entry(:sizes, [[48, 48]]))
+
+      author = Lotus::Person.create
+      author.update_avatar! "avatar_url"
     end
   end
 end

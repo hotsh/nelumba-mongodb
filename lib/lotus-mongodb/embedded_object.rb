@@ -4,7 +4,7 @@ module Lotus
       klass.class_eval do
         include MongoMapper::EmbeddedDocument
 
-        belongs_to :author, :class_name => 'Lotus::Author'
+        belongs_to :author, :class_name => 'Lotus::Person'
         key :author_id, ObjectId
 
         key :title

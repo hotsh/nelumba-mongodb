@@ -1,5 +1,5 @@
 module Lotus
-  # This represents the information necessary to talk to an Author that is
+  # This represents the information necessary to talk to an Person that is
   # external to our node, or it represents how to talk to us.
   # An Identity stores endpoints that are used to push or pull Activities from.
   class Identity
@@ -10,8 +10,8 @@ module Lotus
     # public keys are good for 4 weeks
     PUBLIC_KEY_LEASE_DAYS = 28
 
-    belongs_to :author, :class_name => 'Lotus::Author'
-    key :author_id, ObjectId
+    belongs_to :person, :class_name => 'Lotus::Person'
+    key :person_id, ObjectId
 
     key :username
     key :ssl
@@ -153,14 +153,14 @@ module Lotus
     end
 
     # Discover the associated author for this identity.
-    def discover_author!
-      Author.discover!("acct:#{self.username}@#{self.domain}")
+    def discover_person!
+      Person.discover!("acct:#{self.username}@#{self.domain}")
     end
 
     # Post an existing activity to the inbox of the person that owns this Identity
     def post!(activity)
-      if self.author.local?
-        self.author.person.local_deliver! activity
+      if self.person.local?
+        self.person.local_deliver! activity
       else
         self.inbox.repost! activity
       end

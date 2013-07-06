@@ -1,7 +1,7 @@
 module Lotus
   # This represents how a Person can authenticate to act on our server.
   # This is attached to an Identity and a Person. Use this to allow an
-  # Author to generate Activities on this server.
+  # Person to generate Activities on this server.
   class Authorization
     require 'bcrypt'
     require 'json'

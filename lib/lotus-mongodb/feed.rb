@@ -32,15 +32,15 @@ module Lotus
     # The representation of the subtitle. (e.g. "html")
     key :subtitle_type
 
-    # An array of Authors that contributed to this Feed.
+    # An array of Persons that contributed to this Feed.
     key  :contributors_ids, Array, :default => []
     remove_method :contributors
-    many :contributors,     :class_name => 'Lotus::Author', :in => :contributors_ids
+    many :contributors,     :class_name => 'Lotus::Person', :in => :contributors_ids
 
-    # An Array of Authors that create the content in this Feed.
+    # An Array of Persons that create the content in this Feed.
     key  :authors_ids,  Array, :default => []
     remove_method :authors
-    many :authors,      :class_name => 'Lotus::Author', :in => :authors_ids
+    many :authors,      :class_name => 'Lotus::Person', :in => :authors_ids
 
     # An Array of Activities that are contained in this Feed.
     key :items_ids,  Array
@@ -95,11 +95,11 @@ module Lotus
         hash = hash.to_hash
 
         hash[:authors].map! do |a|
-          Author.find_or_create_by_uid!(a, :safe => true)
+          Person.find_or_create_by_uid!(a, :safe => true)
         end
 
         hash[:contributors].map! do |a|
-          Author.find_or_create_by_uid!(a, :safe => true)
+          Person.find_or_create_by_uid!(a, :safe => true)
         end
 
         hash[:items].map! do |a|
