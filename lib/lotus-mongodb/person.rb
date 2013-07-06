@@ -157,7 +157,7 @@ module Lotus
     # Updates so that we now follow the given Person.
     def follow!(author)
       if author.is_a? Lotus::Identity
-        author = author.author
+        author = author.person
       end
 
       # add the author from our list of followers
@@ -183,7 +183,7 @@ module Lotus
     # Updates so that we do not follow the given Person.
     def unfollow!(author)
       if author.is_a? Lotus::Identity
-        author = author.author
+        author = author.person
       end
 
       # remove the person from our list of followers
@@ -208,7 +208,7 @@ module Lotus
 
     def follow?(author)
       if author.is_a? Lotus::Identity
-        author = author.author
+        author = author.person
       end
 
       self.following_ids.include? author.id
@@ -217,7 +217,7 @@ module Lotus
     # Updates to show we are now followed by the given Person.
     def followed_by!(author)
       if author.is_a? Lotus::Identity
-        author = author.author
+        author = author.person
       end
 
       return if author.nil?
@@ -233,7 +233,7 @@ module Lotus
     # Updates to show we are not followed by the given Person.
     def unfollowed_by!(author)
       if author.is_a? Lotus::Identity
-        author = author.author
+        author = author.person
       end
 
       return if author.nil?
@@ -476,8 +476,8 @@ module Lotus
 
       saved_feed = Feed.create!(feed)
       identity = identity.to_hash.merge(:outbox => saved_feed,
-                                        :author => saved_feed.authors.first)
-      Lotus::Identity.create!(identity).author
+                                        :person => saved_feed.authors.first)
+      Lotus::Identity.create!(identity).person
     end
   end
 end

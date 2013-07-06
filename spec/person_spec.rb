@@ -172,7 +172,7 @@ describe Lotus::Person do
       identity = Lotus::Identity.new(:outbox_id => outbox.id,
                               :author_id => @author.id)
       identity.stubs(:outbox).returns(outbox)
-      identity.stubs(:author).returns(@author)
+      identity.stubs(:person).returns(@author)
       identity.stubs(:save)
 
       @author.stubs(:identity).returns(identity)
@@ -236,7 +236,7 @@ describe Lotus::Person do
       identity = Lotus::Identity.new(:outbox_id => outbox.id,
                               :author_id => @author.id)
       identity.stubs(:outbox).returns(outbox)
-      identity.stubs(:author).returns(@author)
+      identity.stubs(:person).returns(@author)
       identity.stubs(:save)
 
       @author.stubs(:identity).returns(identity)
@@ -301,7 +301,7 @@ describe Lotus::Person do
                                :inbox_id  => aggregate_in.id,
                                :author_id => @author.id)
 
-      @identity.stubs(:author).returns(@author)
+      @identity.stubs(:person).returns(@author)
       @identity.stubs(:outbox).returns(aggregate)
       @identity.stubs(:inbox).returns(aggregate_in)
       @author.stubs(:identity).returns(@identity)
@@ -347,7 +347,7 @@ describe Lotus::Person do
                                :inbox_id  => aggregate_in.id,
                                :author_id => @author.id)
 
-      @identity.stubs(:author).returns(@author)
+      @identity.stubs(:person).returns(@author)
       @identity.stubs(:outbox).returns(aggregate)
       @identity.stubs(:inbox).returns(aggregate_in)
       @author.stubs(:identity).returns(@identity)
@@ -595,7 +595,7 @@ describe Lotus::Person do
     it "should create an identity when author is discovered" do
       identity = Lotus::Identity.new
       identity.stubs(:to_hash).returns({})
-      identity.stubs(:author).returns({})
+      identity.stubs(:person).returns({})
       Lotus::Identity.stubs(:find_by_identifier).returns(nil)
       Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
 
@@ -634,7 +634,7 @@ describe Lotus::Person do
 
       identity = Lotus::Identity.new
       identity.stubs(:to_hash).returns({})
-      identity.stubs(:author).returns(author)
+      identity.stubs(:person).returns(author)
       Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
 
       feed = Lotus::Feed.new
@@ -654,7 +654,7 @@ describe Lotus::Person do
 
       identity = Lotus::Identity.new
       identity.stubs(:to_hash).returns({})
-      identity.stubs(:author).returns(author)
+      identity.stubs(:person).returns(author)
 
       Lotus::Identity.stubs(:find_by_identifier).returns(identity)
       Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(nil)
@@ -665,7 +665,7 @@ describe Lotus::Person do
     it "should assign the Identity outbox to the discovered feed" do
       identity = Lotus::Identity.new
       identity.stubs(:to_hash).returns({})
-      identity.stubs(:author).returns({})
+      identity.stubs(:person).returns({})
       Lotus::Identity.stubs(:find_by_identifier).returns(nil)
       Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
 
@@ -684,10 +684,10 @@ describe Lotus::Person do
       Lotus::Person.discover! "wilkie@rstat.us"
     end
 
-    it "should assign the Identity author to the discovered author" do
+    it "should assign the Identity person to the discovered Person" do
       identity = Lotus::Identity.new
       identity.stubs(:to_hash).returns({})
-      identity.stubs(:author).returns({})
+      identity.stubs(:person).returns({})
       Lotus::Identity.stubs(:find_by_identifier).returns(nil)
       Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
 
@@ -700,7 +700,7 @@ describe Lotus::Person do
       Lotus::Feed.stubs(:create!).with(feed).returns(saved_feed)
 
       Lotus::Identity.expects(:create!)
-        .with(has_entry(:author, author))
+        .with(has_entry(:person, author))
         .returns(identity)
 
       Lotus::Person.discover! "wilkie@rstat.us"
