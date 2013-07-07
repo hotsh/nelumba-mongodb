@@ -6,7 +6,6 @@ MongoMapper.database = "lotus-mongodb"
 require "lotus-mongodb/embedded_object"
 require "lotus-mongodb/object"
 
-require "lotus-mongodb/aggregate"
 require "lotus-mongodb/identity"
 require "lotus-mongodb/activity"
 require "lotus-mongodb/feed"

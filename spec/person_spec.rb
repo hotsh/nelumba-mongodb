@@ -107,8 +107,8 @@ describe Lotus::Person do
       @author = Lotus::Person.new
       Lotus::Person.stubs(:create).returns(@author)
 
-      @aggregate = Lotus::Aggregate.new
-      Lotus::Aggregate.stubs(:create).returns(@aggregate)
+      @aggregate = Lotus::Feed.new
+      Lotus::Feed.stubs(:create).returns(@aggregate)
 
       @person = Lotus::Person.new
     end
@@ -149,12 +149,12 @@ describe Lotus::Person do
       @person = Lotus::Person.new
       @person.stubs(:save)
 
-      timeline = Lotus::Aggregate.new
+      timeline = Lotus::Feed.new
       timeline.stubs(:follow!)
       timeline.stubs(:save)
       @person.stubs(:timeline).returns(timeline)
 
-      activities = Lotus::Aggregate.new
+      activities = Lotus::Feed.new
       activities.stubs(:save)
       activities.stubs(:post!)
       @person.stubs(:activities).returns(activities)
@@ -165,7 +165,7 @@ describe Lotus::Person do
       feed = Lotus::Feed.new
       feed.stubs(:save)
 
-      outbox = Lotus::Aggregate.new
+      outbox = Lotus::Feed.new
       outbox.stubs(:save)
       outbox.stubs(:feed).returns(feed)
 
@@ -214,12 +214,12 @@ describe Lotus::Person do
       @person = Lotus::Person.new
       @person.stubs(:save)
 
-      timeline = Lotus::Aggregate.new
+      timeline = Lotus::Feed.new
       timeline.stubs(:follow!)
       timeline.stubs(:save)
       @person.stubs(:timeline).returns(timeline)
 
-      activities = Lotus::Aggregate.new
+      activities = Lotus::Feed.new
       activities.stubs(:save)
       activities.stubs(:post!)
       @person.stubs(:activities).returns(activities)
@@ -229,7 +229,7 @@ describe Lotus::Person do
       feed = Lotus::Feed.new
       feed.stubs(:save)
 
-      outbox = Lotus::Aggregate.new
+      outbox = Lotus::Feed.new
       outbox.stubs(:save)
       outbox.stubs(:feed).returns(feed)
 
@@ -279,7 +279,7 @@ describe Lotus::Person do
 
   describe "#followed_by!" do
     before do
-      activities = Lotus::Aggregate.new
+      activities = Lotus::Feed.new
       activities.stubs(:followed_by!)
 
       @person = Lotus::Person.new
@@ -289,11 +289,11 @@ describe Lotus::Person do
       @author = Lotus::Person.new
       @author.stubs(:save)
 
-      aggregate = Lotus::Aggregate.new
+      aggregate = Lotus::Feed.new
       aggregate.stubs(:feed).returns(Lotus::Feed.new)
       aggregate.stubs(:save)
 
-      aggregate_in = Lotus::Aggregate.new
+      aggregate_in = Lotus::Feed.new
       aggregate_in.stubs(:feed).returns(Lotus::Feed.new)
       aggregate_in.stubs(:save)
 
@@ -325,7 +325,7 @@ describe Lotus::Person do
 
   describe "#unfollowed_by!" do
     before do
-      activities = Lotus::Aggregate.new
+      activities = Lotus::Feed.new
       activities.stubs(:unfollowed_by!)
 
       @person = Lotus::Person.new
@@ -335,11 +335,11 @@ describe Lotus::Person do
       @author = Lotus::Person.new
       @author.stubs(:save)
 
-      aggregate = Lotus::Aggregate.new
+      aggregate = Lotus::Feed.new
       aggregate.stubs(:feed).returns(Lotus::Feed.new)
       aggregate.stubs(:save)
 
-      aggregate_in = Lotus::Aggregate.new
+      aggregate_in = Lotus::Feed.new
       aggregate_in.stubs(:feed).returns(Lotus::Feed.new)
       aggregate_in.stubs(:save)
 
@@ -371,9 +371,9 @@ describe Lotus::Person do
 
   describe "#favorite!" do
     before do
-      activities = Lotus::Aggregate.new
+      activities = Lotus::Feed.new
       activities.stubs(:post!)
-      favorites = Lotus::Aggregate.new
+      favorites = Lotus::Feed.new
       favorites.stubs(:repost!)
 
       @person = Lotus::Person.new
@@ -418,9 +418,9 @@ describe Lotus::Person do
 
   describe "#unfavorite!" do
     before do
-      activities = Lotus::Aggregate.new
+      activities = Lotus::Feed.new
       activities.stubs(:post!)
-      favorites = Lotus::Aggregate.new
+      favorites = Lotus::Feed.new
       favorites.stubs(:delete!)
 
       author = Lotus::Person.new
@@ -471,7 +471,7 @@ describe Lotus::Person do
       person = Lotus::Person.new
       activity = Lotus::Activity.new
 
-      person.stubs(:mentions).returns(Lotus::Aggregate.new)
+      person.stubs(:mentions).returns(Lotus::Feed.new)
 
       person.mentions.expects(:repost!).with(activity)
       person.mentioned_by! activity
@@ -483,7 +483,7 @@ describe Lotus::Person do
       person = Lotus::Person.new
       activity = Lotus::Activity.new
 
-      person.stubs(:replies).returns(Lotus::Aggregate.new)
+      person.stubs(:replies).returns(Lotus::Feed.new)
 
       person.replies.expects(:repost!).with(activity)
       person.replied_by! activity
@@ -495,8 +495,8 @@ describe Lotus::Person do
       person = Lotus::Person.new
       activity = Lotus::Activity.new
 
-      person.stubs(:timeline).returns(Lotus::Aggregate.new)
-      person.stubs(:activities).returns(Lotus::Aggregate.new)
+      person.stubs(:timeline).returns(Lotus::Feed.new)
+      person.stubs(:activities).returns(Lotus::Feed.new)
 
       person.activities.expects(:post!).with(activity)
       person.timeline.stubs(:repost!).with(activity)
@@ -507,8 +507,8 @@ describe Lotus::Person do
       person = Lotus::Person.new
       activity = Lotus::Activity.new
 
-      person.stubs(:timeline).returns(Lotus::Aggregate.new)
-      person.stubs(:activities).returns(Lotus::Aggregate.new)
+      person.stubs(:timeline).returns(Lotus::Feed.new)
+      person.stubs(:activities).returns(Lotus::Feed.new)
 
       person.activities.stubs(:post!).with(activity)
       person.timeline.expects(:repost!).with(activity)
@@ -519,8 +519,8 @@ describe Lotus::Person do
       activity = Lotus::Activity.new
       person = Lotus::Person.new
 
-      person.stubs(:timeline).returns(Lotus::Aggregate.new)
-      person.stubs(:activities).returns(Lotus::Aggregate.new)
+      person.stubs(:timeline).returns(Lotus::Feed.new)
+      person.stubs(:activities).returns(Lotus::Feed.new)
 
       hash = {:content => "Hello"}
 
@@ -535,9 +535,9 @@ describe Lotus::Person do
   describe "#share!" do
     before do
       @person = Lotus::Person.new
-      @person.stubs(:timeline).returns(Lotus::Aggregate.new)
-      @person.stubs(:shared).returns(Lotus::Aggregate.new)
-      @person.stubs(:activities).returns(Lotus::Aggregate.new)
+      @person.stubs(:timeline).returns(Lotus::Feed.new)
+      @person.stubs(:shared).returns(Lotus::Feed.new)
+      @person.stubs(:activities).returns(Lotus::Feed.new)
 
       @person.shared.stubs(:repost!)
       @person.timeline.stubs(:repost!)

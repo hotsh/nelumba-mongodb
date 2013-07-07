@@ -17,11 +17,11 @@ def create_authorization(params)
   person = Lotus::Person.new
   person.stubs(:save).returns(true)
   person.stubs(:author).returns(author)
-  person.stubs(:activities).returns(Lotus::Aggregate.new)
+  person.stubs(:activities).returns(Lotus::Feed.new)
 
   authorization.stubs(:person).returns(person)
 
-  outbox = Lotus::Aggregate.new
+  outbox = Lotus::Feed.new
 
   identity = Lotus::Identity.new
   identity.stubs(:domain).returns "example.com"
@@ -94,8 +94,8 @@ describe Lotus::Authorization do
       @person = Lotus::Person.new
       @person.stubs(:save).returns(true)
       @person.stubs(:author).returns(author)
-      @person.stubs(:activities).returns(Lotus::Aggregate.new)
-      @person.stubs(:timeline).returns(Lotus::Aggregate.new)
+      @person.stubs(:activities).returns(Lotus::Feed.new)
+      @person.stubs(:timeline).returns(Lotus::Feed.new)
 
       identity = Lotus::Identity.new
       identity.stubs(:save).returns(true)

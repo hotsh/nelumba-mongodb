@@ -61,6 +61,38 @@ describe Lotus::Feed do
     it "should have a updated_at" do
       Lotus::Feed.keys.keys.must_include "updated_at"
     end
+
+    it "should have a person_id" do
+      Lotus::Feed.keys.keys.must_include "person_id"
+    end
+
+    it "should have a following_ids array" do
+      Lotus::Feed.keys.keys.must_include "following_ids"
+    end
+
+    it "should have many following" do
+      Lotus::Feed.has_many?(:following).must_equal true
+    end
+
+    it "should have a followers_ids array" do
+      Lotus::Feed.keys.keys.must_include "followers_ids"
+    end
+
+    it "should have many followers" do
+      Lotus::Feed.has_many?(:followers).must_equal true
+    end
+
+    it "should have a subscription_secret" do
+      Lotus::Feed.keys.keys.must_include "subscription_secret"
+    end
+
+    it "should have a verification_token" do
+      Lotus::Feed.keys.keys.must_include "verification_token"
+    end
+
+    it "should belong to person" do
+      Lotus::Feed.belongs_to?(:person).must_equal true
+    end
   end
 
   describe "find_or_create_by_uid!" do
@@ -347,6 +379,118 @@ describe Lotus::Feed do
         .returns(query)
 
       feed.ordered.must_equal "ordered"
+    end
+  end
+
+  describe "#follow!" do
+    it "should add the given feed to the following list" do
+      aggregate = Lotus::Feed.new
+      aggregate.stubs(:save)
+
+      feed = Lotus::Feed.new
+      feed.stubs(:save)
+
+      aggregate.follow! feed
+
+      aggregate.following_ids.must_include feed.id
+    end
+
+    it "should save" do
+      aggregate = Lotus::Feed.new
+      feed = Lotus::Feed.new
+      feed.stubs(:save)
+
+      aggregate.expects(:save)
+
+      aggregate.follow! feed
+    end
+  end
+
+  describe "#unfollow!" do
+    it "should remove the given feed from the following list" do
+      aggregate = Lotus::Feed.new
+      aggregate.stubs(:save)
+
+      feed = Lotus::Feed.new
+      feed.stubs(:save)
+
+      aggregate.unfollow! feed
+
+      aggregate.following_ids.wont_include feed.id
+    end
+
+    it "should save" do
+      aggregate = Lotus::Feed.new
+      feed = Lotus::Feed.new
+      feed.stubs(:save)
+
+      aggregate.expects(:save)
+
+      aggregate.unfollow! feed
+    end
+  end
+
+  describe "#followed_by!" do
+    it "should add the given feed to the followers list" do
+      aggregate = Lotus::Feed.new
+      aggregate.stubs(:save)
+
+      feed = Lotus::Feed.new
+      feed.stubs(:save)
+
+      aggregate.followed_by! feed
+
+      aggregate.followers_ids.must_include feed.id
+    end
+
+    it "should save" do
+      aggregate = Lotus::Feed.new
+      feed = Lotus::Feed.new
+      feed.stubs(:save)
+
+      aggregate.expects(:save)
+
+      aggregate.followed_by! feed
+    end
+  end
+
+  describe "#unfollowed_by!" do
+    it "should remove the given feed from the followers list" do
+      aggregate = Lotus::Feed.new
+      aggregate.stubs(:save)
+
+      feed = Lotus::Feed.new
+      feed.stubs(:save)
+
+      aggregate.unfollowed_by! feed
+
+      aggregate.followers_ids.wont_include feed.id
+    end
+
+    it "should save" do
+      aggregate = Lotus::Feed.new
+      feed = Lotus::Feed.new
+      feed.stubs(:save)
+
+      aggregate.expects(:save)
+
+      aggregate.unfollowed_by! feed
+    end
+  end
+
+  describe "#publish" do
+    it "should repost in every feed that follows this aggregate" do
+      activity = Lotus::Activity.new
+
+      aggregate = Lotus::Feed.new
+      feeds = [Lotus::Feed.new, Lotus::Feed.new, Lotus::Feed.new]
+
+      feeds.each do |f|
+        f.expects(:repost!).with(activity)
+      end
+
+      aggregate.stubs(:followers).returns(feeds)
+      aggregate.publish activity
     end
   end
 end

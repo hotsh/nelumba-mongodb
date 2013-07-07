@@ -20,27 +20,27 @@ module Lotus
 
     # Our contributions.
     key :activities_id,     ObjectId
-    belongs_to :activities, :class_name => 'Lotus::Aggregate'
+    belongs_to :activities, :class_name => 'Lotus::Feed'
 
     # The combined contributions of ourself and others we follow.
     key :timeline_id,     ObjectId
-    belongs_to :timeline, :class_name => 'Lotus::Aggregate'
+    belongs_to :timeline, :class_name => 'Lotus::Feed'
 
     # The things we like.
     key :favorites_id,     ObjectId
-    belongs_to :favorites, :class_name => 'Lotus::Aggregate'
+    belongs_to :favorites, :class_name => 'Lotus::Feed'
 
     # The things we shared.
     key :shared_id,     ObjectId
-    belongs_to :shared, :class_name => 'Lotus::Aggregate'
+    belongs_to :shared, :class_name => 'Lotus::Feed'
 
     # Replies to our stuff.
     key :replies_id,     ObjectId
-    belongs_to :replies, :class_name => 'Lotus::Aggregate'
+    belongs_to :replies, :class_name => 'Lotus::Feed'
 
     # Stuff that mentions us.
     key :mentions_id,     ObjectId
-    belongs_to :mentions, :class_name => 'Lotus::Aggregate'
+    belongs_to :mentions, :class_name => 'Lotus::Feed'
 
     # The people that follow us.
     key  :following_ids, Array
@@ -151,7 +151,7 @@ module Lotus
     end
 
     def create_aggregate
-      Lotus::Aggregate.create(:person_id => self.id)
+      Lotus::Feed.create(:person_id => self.id)
     end
 
     public

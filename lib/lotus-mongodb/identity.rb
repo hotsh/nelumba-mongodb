@@ -31,10 +31,10 @@ module Lotus
     key :profile_page
 
     key :outbox_id, ObjectId
-    belongs_to :outbox, :class_name => 'Lotus::Aggregate'
+    belongs_to :outbox, :class_name => 'Lotus::Feed'
 
     key :inbox_id, ObjectId
-    belongs_to :inbox, :class_name => 'Lotus::Aggregate'
+    belongs_to :inbox, :class_name => 'Lotus::Feed'
 
     timestamps!
 

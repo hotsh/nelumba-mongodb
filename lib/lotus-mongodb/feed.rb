@@ -4,15 +4,15 @@ module Lotus
 
     include MongoMapper::Document
 
-    # An Aggregate handles subscriptions to this Feed.
-    key :aggregate_id, ObjectId
-    belongs_to :aggregate, :class_name => 'Lotus::Aggregate'
-
     # A unique identifier for this Feed.
     key :uid
 
     # A URL for this Feed that can be used to retrieve a representation.
     key :url
+
+    # Feeds generally belong to a person.
+    key :person_id, ObjectId
+    belongs_to :person, :class_name => 'Lotus::Person'
 
     remove_method :categories
     key :categories,   :default => []
@@ -63,6 +63,23 @@ module Lotus
 
     # Log modification
     timestamps!
+
+    # The external feeds being aggregated.
+    key  :following_ids, Array
+    many :following,     :in => :following_ids, :class_name => 'Lotus::Feed'
+
+    # Who is aggregating this feed.
+    key  :followers_ids, Array
+    many :followers,     :in => :followers_ids, :class_name => 'Lotus::Feed'
+
+    # Subscription status.
+    # Since subscriptions are done by the server, we only need to share one
+    # secret/token pair for all users that follow this feed on the server.
+    # This is done at the Feed level since people may want to follow your
+    # "timeline", or your "favorites". Or People who use Lotus will ignore
+    # the Person aggregate class and go with their own thing.
+    key :subscription_secret
+    key :verification_token
 
     # Create a new Feed if the given Feed is not found by its id.
     def self.find_or_create_by_uid!(arg, *args)
@@ -124,34 +141,6 @@ module Lotus
       self.create!(feed)
     end
 
-    # Adds activity to the feed.
-    def post!(activity)
-      if activity.is_a?(Hash)
-        # Create a new activity
-        activity = Lotus::Activity.create!(activity)
-      end
-
-      activity.feed_id = self.id
-      activity.save
-
-      self.items << activity
-      self.save
-
-      activity
-    end
-
-    # Reposts an activity from another feed.
-    def repost!(activity)
-      self.items << activity
-      self.save
-    end
-
-    # Deletes the activity from this feed.
-    def delete!(activity)
-      self.items_ids.delete(activity.id)
-      self.save
-    end
-
     # Merges the information in the given feed with this one.
     def merge!(feed)
       # Merge metadata
@@ -178,6 +167,76 @@ module Lotus
     # Retrieve the feed's activities with the most recent first.
     def ordered
       Lotus::Activity.where(:id => self.items_ids).order(:created_at => :desc)
+    end
+
+    # Follow the given feed. When a new post is placed in this feed, it
+    # will be copied into ours.
+    def follow!(feed)
+      self.following << feed
+      self.save
+
+      # Subscribe to that feed on this server if not already.
+    end
+
+    # Unfollow the given feed. Our feed will no longer receive new posts from
+    # the given feed.
+    def unfollow!(feed)
+      self.following_ids.delete(feed.id)
+      self.save
+    end
+
+    # Denotes that the given feed will contain your posts.
+    def followed_by!(feed)
+      self.followers << feed
+      self.save
+    end
+
+    # Denotes that the given feed will not contain your posts from now on.
+    def unfollowed_by!(feed)
+      self.followers_ids.delete(feed.id)
+      self.save
+    end
+
+    # Add to the feed and tell subscribers.
+    def post!(activity)
+      if activity.is_a?(Hash)
+        # Create a new activity
+        activity = Lotus::Activity.create!(activity)
+      end
+
+      activity.feed_id = self.id
+      activity.save
+
+      self.items << activity
+      self.save
+
+      publish(activity)
+
+      activity
+    end
+
+    # Remove the activity from the feed.
+    def delete!(activity)
+      self.items_ids.delete(activity.id)
+      self.save
+    end
+
+    # Add a copy to our feed and tell subscribers.
+    def repost!(activity)
+      self.items << activity
+      self.save
+
+      publish(activity)
+    end
+
+    # Publish an activity that is within our feed.
+    def publish(activity)
+      # Push to direct followers
+      self.followers.each do |feed|
+        feed.repost! activity
+      end
+
+      # TODO: PuSH Hubs
     end
   end
 end
