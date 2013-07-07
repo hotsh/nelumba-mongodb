@@ -318,7 +318,7 @@ describe Lotus::Person do
     end
 
     it "should add outbox to activities' followers list" do
-      @person.activities.expects(:followed_by!).with(@identity.inbox.feed)
+      @person.activities.expects(:followed_by!).with(@identity.inbox)
       @person.followed_by! @author
     end
   end
@@ -336,11 +336,9 @@ describe Lotus::Person do
       @author.stubs(:save)
 
       aggregate = Lotus::Feed.new
-      aggregate.stubs(:feed).returns(Lotus::Feed.new)
       aggregate.stubs(:save)
 
       aggregate_in = Lotus::Feed.new
-      aggregate_in.stubs(:feed).returns(Lotus::Feed.new)
       aggregate_in.stubs(:save)
 
       @identity = Lotus::Identity.new(:outbox_id => aggregate.id,
@@ -364,7 +362,7 @@ describe Lotus::Person do
     end
 
     it "should remove outbox from activities' followers list" do
-      @person.activities.expects(:unfollowed_by!).with(@identity.inbox.feed)
+      @person.activities.expects(:unfollowed_by!).with(@identity.inbox)
       @person.unfollowed_by! @author
     end
   end

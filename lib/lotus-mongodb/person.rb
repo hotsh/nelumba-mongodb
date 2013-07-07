@@ -167,7 +167,7 @@ module Lotus
       self.save
 
       # determine the feed to subscribe to
-      self.timeline.follow! author.identity.outbox.feed
+      self.timeline.follow! author.identity.outbox
 
       # tell local users that somebody on this server is following them.
       if author.local?
@@ -193,7 +193,7 @@ module Lotus
       self.save
 
       # unfollow their timeline feed
-      self.timeline.unfollow! author.identity.outbox.feed
+      self.timeline.unfollow! author.identity.outbox
 
       # tell local users that somebody on this server has stopped following them.
       if author.local?
@@ -229,7 +229,7 @@ module Lotus
       self.save
 
       # determine their feed
-      self.activities.followed_by! author.identity.inbox.feed
+      self.activities.followed_by! author.identity.inbox
     end
 
     # Updates to show we are not followed by the given Person.
@@ -245,7 +245,7 @@ module Lotus
       self.save
 
       # remove their feed as a syndicate of our activities
-      self.activities.unfollowed_by! author.identity.inbox.feed
+      self.activities.unfollowed_by! author.identity.inbox
     end
 
     # Add the given Activity to our list of favorites.
