@@ -86,10 +86,11 @@ module Lotus
     # Scrape content for username mentions.
     def scrape_mentions
       return if self.object.nil?
-      return unless self.object.respond_to? :mentions
+      return unless !self.object.is_a?(Lotus::Person) &&
+                    self.object.respond_to?(:mentions)
       authors = self.object.mentions do |username, domain|
         i = Identity.first(:username => /^#{Regexp.escape(username)}$/i)
-        i.author if i
+        i.person if i
       end
       authors ||= []
       self.mentions_ids = authors.compact.map(&:id)
@@ -99,7 +100,7 @@ module Lotus
 
     def mentions?(author)
       if author.is_a? Lotus::Identity
-        author = author.author
+        author = author.person
       end
 
       self.mentions_ids.include? author.id
@@ -305,7 +306,7 @@ module Lotus
 
     def update_from_notification(notification, force = false)
       # Do not allow another actor to change an existing activity
-      if self.actor && self.actor.uri != notification.activity.actor.uri
+      if self.actor && self.actor.url != notification.activity.actor.url
         return nil
       end
 

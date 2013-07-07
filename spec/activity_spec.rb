@@ -330,8 +330,8 @@ describe Lotus::Activity do
 
   describe "create_from_notification!" do
     before do
-      activity_author = Lotus::Person.create :uri => "acct:wilkie@rstat.us",
-                                          :uid => "AUTHOR ID"
+      activity_author = Lotus::Person.create :url => "acct:wilkie@rstat.us",
+                                             :uid => "AUTHOR ID"
 
       activity = Lotus::Activity.new :verb  => :follow,
                                      :uid   => "1",
@@ -385,7 +385,7 @@ describe Lotus::Activity do
     it "should return nil if the update exists under a different author" do
       old = Lotus::Activity.create_from_notification!(@notification)
 
-      activity_author = Lotus::Person.create :uri => "acct:bogus@rstat.us",
+      activity_author = Lotus::Person.create :url => "acct:bogus@rstat.us",
                                           :uid => "AUTHOR ID"
       activity = Lotus::Activity.new :verb  => :follow,
                                      :uid   => "1",

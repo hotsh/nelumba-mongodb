@@ -40,13 +40,13 @@ module Lotus
     private
 
     def create_person_and_identity
-      person = Person.create(:authorization_id => self.id,
-                             :nickname => self.username,
-                             :name => self.username,
-                             :display_name => self.username,
-                             :preferred_username => self.username)
+      person = Lotus::Person.create(:authorization_id => self.id,
+                                    :nickname => self.username,
+                                    :name => self.username,
+                                    :display_name => self.username,
+                                    :preferred_username => self.username)
 
-      keypair = ::Lotus::Crypto.new_keypair
+      keypair = Lotus::Crypto.new_keypair
 
       self.identity = Lotus::Identity.create!(
         :username => self.username,

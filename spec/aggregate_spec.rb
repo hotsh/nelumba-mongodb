@@ -80,9 +80,8 @@ describe Lotus::Aggregate do
       feed.stubs(:save)
 
       person = Lotus::Person.new
-      person.stubs(:author).returns(Lotus::Person.new)
       aggregate.stubs(:person).returns(person)
-      feed.expects(:author=).with(person.author)
+      feed.expects(:authors_ids=).with([person.id])
 
       aggregate.run_callbacks :create
     end

@@ -14,8 +14,8 @@ describe Lotus::Person do
       Lotus::Person.keys.keys.must_include "extended_name"
     end
 
-    it "should have a uri" do
-      Lotus::Person.keys.keys.must_include "uri"
+    it "should have a url" do
+      Lotus::Person.keys.keys.must_include "url"
     end
 
     it "should have an email" do

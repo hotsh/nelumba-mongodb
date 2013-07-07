@@ -4,6 +4,8 @@ module Lotus
   # a list of things that mention us and replies to us. It keeps track of
   # our social presence with who follows us and who we follow.
   class Person
+    def initialize(*args); super(*args); end
+
     include MongoMapper::Document
 
     # Every Person has a representation of their central Identity.
@@ -65,7 +67,7 @@ module Lotus
 
     # A URI that identifies this author and can be used to access a
     # canonical representation of this structure.
-    key :uri
+    key :url
 
     # The email for this Person.
     key :email
@@ -127,16 +129,16 @@ module Lotus
     # A Date indicating an anniversary.
     key :anniversary
 
-    timestamps!
-
-    before_create :set_uid_and_uri
+    before_create :set_uid_and_url
     before_create :create_aggregates
+
+    timestamps!
 
     private
 
-    def set_uid_and_uri
-      self.uri = "/people/#{self.id}"
-      self.uid = self.uri
+    def set_uid_and_url
+      self.url = "/people/#{self.id}" unless self.url
+      self.uid = self.url unless self.uid
     end
 
     def create_aggregates

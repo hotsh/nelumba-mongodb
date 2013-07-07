@@ -42,7 +42,7 @@ module Lotus
       feed = Feed.new
       feed.uid = "/feeds/#{feed.id}"
       feed.url = "/feeds/#{feed.id}"
-      feed.author = self.person.author if self.person
+      feed.authors_ids = [self.person.id] if self.person
       feed.aggregate_id = self.id
       feed.save
     end
