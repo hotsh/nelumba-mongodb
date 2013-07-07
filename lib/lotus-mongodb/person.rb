@@ -253,7 +253,7 @@ module Lotus
       self.favorites.repost! activity
 
       self.activities.post!(:verb                 => :favorite,
-                            :actor_id             => self.author.id,
+                            :actor_id             => self.id,
                             :actor_type           => 'Person',
                             :external_object_id   => activity.id,
                             :external_object_type => 'Activity')
@@ -264,7 +264,7 @@ module Lotus
       self.favorites.delete! activity
 
       self.activities.post!(:verb                 => :unfavorite,
-                            :actor_id             => self.author.id,
+                            :actor_id             => self.id,
                             :actor_type           => 'Person',
                             :external_object_id   => activity.id,
                             :external_object_type => 'Activity')
@@ -307,7 +307,7 @@ module Lotus
       self.shared.repost!   activity
 
       self.activities.post!(:verb                 => :share,
-                            :actor_id             => self.author.id,
+                            :actor_id             => self.id,
                             :actor_type           => 'Person',
                             :external_object_id   => activity.id,
                             :external_object_type => 'Activity')
@@ -349,7 +349,7 @@ module Lotus
       self.timeline.repost! activity if self.follow?(activity.actor)
 
       # Determine if it is a mention or reply and filter
-      self.mentions.repost! activity if activity.mentions? self.author
+      self.mentions.repost! activity if activity.mentions? self
     end
 
     # Updates our avatar with the given url.

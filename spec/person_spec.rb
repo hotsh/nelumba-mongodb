@@ -376,12 +376,9 @@ describe Lotus::Person do
       favorites = Lotus::Aggregate.new
       favorites.stubs(:repost!)
 
-      author = Lotus::Person.new
-
       @person = Lotus::Person.new
       @person.stubs(:activities).returns(activities)
       @person.stubs(:favorites).returns(favorites)
-      @person.stubs(:author).returns(author)
     end
 
     it "should repost the given activity to our favorites aggregate" do
@@ -402,7 +399,7 @@ describe Lotus::Person do
       activity = Lotus::Activity.new
 
       @person.activities.expects(:post!)
-        .with(has_entries(:actor_id   => @person.author.id,
+        .with(has_entries(:actor_id   => @person.id,
                           :actor_type => 'Person'))
 
       @person.favorite! activity
@@ -452,7 +449,7 @@ describe Lotus::Person do
       activity = Lotus::Activity.new
 
       @person.activities.expects(:post!)
-        .with(has_entries(:actor_id   => @person.author.id,
+        .with(has_entries(:actor_id   => @person.id,
                           :actor_type => 'Person'))
 
       @person.unfavorite! activity
@@ -542,8 +539,6 @@ describe Lotus::Person do
       @person.stubs(:shared).returns(Lotus::Aggregate.new)
       @person.stubs(:activities).returns(Lotus::Aggregate.new)
 
-      @person.stubs(:author).returns(Lotus::Person.new)
-
       @person.shared.stubs(:repost!)
       @person.timeline.stubs(:repost!)
       @person.activities.stubs(:post!)
@@ -574,7 +569,7 @@ describe Lotus::Person do
       activity = Lotus::Activity.new
 
       @person.activities.expects(:post!)
-        .with(has_entries(:actor_id  => @person.author.id,
+        .with(has_entries(:actor_id  => @person.id,
                           :actor_type => 'Person'))
 
       @person.share! activity
