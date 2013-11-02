@@ -481,5 +481,9 @@ module Lotus
                                         :person => saved_feed.authors.first)
       Lotus::Identity.create!(identity).person
     end
+
+    def to_xml(*args)
+      self.to_atom
+    end
   end
 end
