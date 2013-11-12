@@ -129,18 +129,11 @@ module Lotus
     # A Date indicating an anniversary.
     key :anniversary
 
-    after_create :set_uid_and_url
     after_create :create_aggregates
 
     timestamps!
 
     private
-
-    def set_uid_and_url
-      self.url = "http#{identity.ssl ? "s" : ""}://#{identity.domain}/people/#{self.id}" unless self.url
-      self.uid = self.url unless self.uid
-      self.save
-    end
 
     def create_aggregates
       self.activities = create_aggregate
