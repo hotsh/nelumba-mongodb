@@ -171,7 +171,7 @@ module Lotus
         person = self.first(:uid => uid) or raise
       end
 
-      activity
+      person
     end
 
     # Updates so that we now follow the given Person.
