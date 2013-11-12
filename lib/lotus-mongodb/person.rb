@@ -129,8 +129,8 @@ module Lotus
     # A Date indicating an anniversary.
     key :anniversary
 
-    before_create :set_uid_and_url
-    before_create :create_aggregates
+    after_create :set_uid_and_url
+    after_create :create_aggregates
 
     timestamps!
 
@@ -139,6 +139,7 @@ module Lotus
     def set_uid_and_url
       self.url = "/people/#{self.id}" unless self.url
       self.uid = self.url unless self.uid
+      self.save
     end
 
     def create_aggregates
@@ -148,14 +149,37 @@ module Lotus
       self.favorites  = create_aggregate
       self.replies    = create_aggregate
       self.mentions   = create_aggregate
+      self.save
     end
 
     def create_aggregate
       Lotus::Feed.create(:person_id => self.id,
-                         :authors => [self])
+                         :authors   => [self])
     end
 
     public
+
+    # Create a new Person if the given Person is not found by its id.
+    def self.find_or_create_by_uid!(arg, *args)
+      if arg.is_a? Lotus::Person
+        uid = arg.uid
+
+        arg = arg.to_hash
+      else
+        uid = arg[:uid]
+      end
+
+      person = self.first(:uid => uid)
+      return person if person
+
+      begin
+        person = create!(arg, *args)
+      rescue
+        person = self.first(:uid => uid) or raise
+      end
+
+      activity
+    end
 
     # Updates so that we now follow the given Person.
     def follow!(author)

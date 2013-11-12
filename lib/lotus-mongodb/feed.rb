@@ -114,7 +114,7 @@ module Lotus
 
       hash[:authors] ||= []
       hash[:authors].map! do |a|
-        if a.is_a? Lotus::Person
+        if a.is_a?(Lotus::Person) && a.id != hash[:person_id]
           a = Person.find_or_create_by_uid!(a, :safe => true)
         end
         a
@@ -122,7 +122,7 @@ module Lotus
 
       hash[:contributors] ||= []
       hash[:contributors].map! do |a|
-        if a.is_a? Lotus::Person
+        if a.is_a?(Lotus::Person) && a.id != hash[:person_id]
           a = Person.find_or_create_by_uid!(a, :safe => true)
         end
         a
