@@ -166,9 +166,13 @@ module Lotus
       return person if person
 
       begin
-        person = create!(arg, *args)
+        person = self.create!(arg, *args)
       rescue
         person = self.first(:uid => uid) or raise
+      end
+
+      if person.is_a? Array
+        person = person.first
       end
 
       person
