@@ -2,6 +2,9 @@ module Lotus
   class Activity
     include Lotus::Object
 
+    # Ensure writes happen
+    safe
+
     # All Activities originate from one particular Feed.
     key :feed_id, ObjectId
     belongs_to :feed, :class_name => 'Lotus::Feed'
@@ -202,8 +205,7 @@ module Lotus
       end
 
       if arg[:author]
-        arg[:author] = Person.find_or_create_by_uid!(hash[:author],
-                                                     :safe => true)
+        arg[:author] = Person.find_or_create_by_uid!(hash[:author])
       end
 
       activity = self.first(:uid => uid)

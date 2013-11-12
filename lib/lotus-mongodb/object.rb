@@ -8,6 +8,9 @@ module Lotus
 
         include MongoMapper::Document
 
+        # Ensure writes happen
+        safe
+
         belongs_to :author, :class_name => 'Lotus::Person'
         key :author_id, ObjectId
 

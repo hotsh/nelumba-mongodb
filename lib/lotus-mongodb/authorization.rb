@@ -9,6 +9,9 @@ module Lotus
 
     include MongoMapper::Document
 
+    # Ensure writes happen
+    safe
+
     # An Authorization involves a Person.
     one :person, :class_name => 'Lotus::Person'
 

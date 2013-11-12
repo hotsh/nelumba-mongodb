@@ -4,6 +4,9 @@ module Lotus
 
     include MongoMapper::Document
 
+    # Ensure writes happen
+    safe
+
     # A unique identifier for this Feed.
     key :uid
 
@@ -115,7 +118,7 @@ module Lotus
       hash[:authors] ||= []
       hash[:authors].map! do |a|
         if a.is_a?(Lotus::Person) && a.id != hash[:person_id]
-          a = Person.find_or_create_by_uid!(a, :safe => true)
+          a = Person.find_or_create_by_uid!(a)
         end
         a
       end
@@ -123,7 +126,7 @@ module Lotus
       hash[:contributors] ||= []
       hash[:contributors].map! do |a|
         if a.is_a?(Lotus::Person) && a.id != hash[:person_id]
-          a = Person.find_or_create_by_uid!(a, :safe => true)
+          a = Person.find_or_create_by_uid!(a)
         end
         a
       end
@@ -131,7 +134,7 @@ module Lotus
       hash[:items] ||= []
       hash[:items].map! do |a|
         if a.is_a? Lotus::Activity
-          a = Lotus::Activity.find_or_create_by_uid!(a, :safe => true)
+          a = Lotus::Activity.find_or_create_by_uid!(a)
         end
         a
       end

@@ -8,6 +8,9 @@ module Lotus
 
     include MongoMapper::Document
 
+    # Ensure writes happen
+    safe
+
     # Every Person has a representation of their central Identity.
     one :identity, :class_name => 'Lotus::Identity'
 
@@ -169,10 +172,6 @@ module Lotus
         person = self.create!(arg, *args)
       rescue
         person = self.first(:uid => uid) or raise
-      end
-
-      if person.is_a? Array
-        person = person.first
       end
 
       person

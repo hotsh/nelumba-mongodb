@@ -7,6 +7,9 @@ module Lotus
 
     include MongoMapper::Document
 
+    # Ensure writes happen
+    safe
+
     # public keys are good for 4 weeks
     PUBLIC_KEY_LEASE_DAYS = 28
 
