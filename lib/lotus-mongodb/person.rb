@@ -137,7 +137,7 @@ module Lotus
     private
 
     def set_uid_and_url
-      self.url = "/people/#{self.id}" unless self.url
+      self.url = "http#{identity.ssl ? "s" : ""}://#{identity.domain}/people/#{self.id}" unless self.url
       self.uid = self.url unless self.uid
       self.save
     end

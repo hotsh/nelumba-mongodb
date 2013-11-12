@@ -12,6 +12,12 @@ module Lotus
     # An Authorization involves a Person.
     one :person, :class_name => 'Lotus::Person'
 
+    # Whether or not this authorization requires ssl
+    key :ssl
+
+    # The domain this authorization is registered for
+    key :domain
+
     # An Authorization involves an Identity.
     key :identity_id, ObjectId
     belongs_to :identity, :class_name => 'Lotus::Identity'
@@ -46,11 +52,16 @@ module Lotus
                                     :display_name => self.username,
                                     :preferred_username => self.username)
 
+      person.url = "http#{self.ssl ? "s" : ""}://#{self.domain}/people/#{person.id}"
+      person.uid = person.url
+      person.save
+
       keypair = Lotus::Crypto.new_keypair
 
       self.identity = Lotus::Identity.create!(
         :username => self.username,
-        :domain => "www.example.com",
+        :domain => self.domain,
+        :ssl => self.ssl,
         :person_id => person.id,
         :public_key => keypair.public_key,
         :salmon_endpoint => "/people/#{person.id}/salmon",
