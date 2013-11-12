@@ -110,18 +110,30 @@ module Lotus
 
       if hash.is_a? Lotus::Feed
         hash = hash.to_hash
+      end
 
-        hash[:authors].map! do |a|
-          Person.find_or_create_by_uid!(a, :safe => true)
+      hash[:authors] ||= []
+      hash[:authors].map! do |a|
+        if a.is_a? Lotus::Person
+          a = Person.find_or_create_by_uid!(a, :safe => true)
         end
+        a
+      end
 
-        hash[:contributors].map! do |a|
-          Person.find_or_create_by_uid!(a, :safe => true)
+      hash[:contributors] ||= []
+      hash[:contributors].map! do |a|
+        if a.is_a? Lotus::Person
+          a = Person.find_or_create_by_uid!(a, :safe => true)
         end
+        a
+      end
 
-        hash[:items].map! do |a|
-          Lotus::Activity.find_or_create_by_uid!(a, :safe => true)
+      hash[:items] ||= []
+      hash[:items].map! do |a|
+        if a.is_a? Lotus::Activity
+          a = Lotus::Activity.find_or_create_by_uid!(a, :safe => true)
         end
+        a
       end
 
       super hash, *args

@@ -195,8 +195,15 @@ module Lotus
     def self.find_or_create_by_uid!(arg, *args)
       if arg.is_a? Lotus::Activity
         uid = arg.uid
+
+        arg = arg.to_hash
       else
         uid = arg[:uid]
+      end
+
+      if arg[:author]
+        arg[:author] = Person.find_or_create_by_uid!(hash[:author],
+                                                     :safe => true)
       end
 
       activity = self.first(:uid => uid)

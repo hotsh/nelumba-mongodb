@@ -151,7 +151,8 @@ module Lotus
     end
 
     def create_aggregate
-      Lotus::Feed.create(:person_id => self.id)
+      Lotus::Feed.create(:person_id => self.id,
+                         :authors => [self])
     end
 
     public
@@ -470,16 +471,19 @@ module Lotus
 
       # Discover the Identity
       identity = Lotus.discover_identity(author_identifier)
-      return false unless identity
+      return nil unless identity
 
       # Use their Identity to discover their feed and their Person
       feed = Lotus.discover_feed(identity)
-      return false unless feed
+      return nil unless feed
 
-      saved_feed = Feed.create!(feed)
-      identity = identity.to_hash.merge(:outbox => saved_feed,
-                                        :person => saved_feed.authors.first)
-      Lotus::Identity.create!(identity).person
+      feed = Lotus::Feed.create!(feed)
+
+      identity = identity.to_hash.merge(:outbox => feed,
+                                        :person => feed.authors.first)
+
+      identity = Lotus::Identity.create!(identity)
+      identity.person
     end
 
     def to_xml(*args)
