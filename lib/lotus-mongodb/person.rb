@@ -497,7 +497,7 @@ module Lotus
       feed = Lotus::Feed.create!(feed)
 
       identity = identity.to_hash.merge(:outbox => feed,
-                                        :person => feed.authors.first)
+                                        :person_id => feed.authors.first.id)
 
       identity = Lotus::Identity.create!(identity)
       identity.person
