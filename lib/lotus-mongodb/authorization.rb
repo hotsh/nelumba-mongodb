@@ -48,6 +48,7 @@ module Lotus
 
     private
 
+    # Creates a local Person and a local Identity
     def create_person_and_identity
       person = Lotus::Person.create(:authorization_id => self.id,
                                     :nickname => self.username,
@@ -55,8 +56,23 @@ module Lotus
                                     :display_name => self.username,
                                     :preferred_username => self.username)
 
+      # Create url and uid for local Person
       person.url = "http#{self.ssl ? "s" : ""}://#{self.domain}/people/#{person.id}"
       person.uid = person.url
+
+      # Create feeds for local Person
+      person.activities = Lotus::Feed.create(:person_id => person.id,
+                                             :authors => [self])
+      person.timeline   = Lotus::Feed.create(:person_id => person.id,
+                                             :authors => [self])
+      person.shared     = Lotus::Feed.create(:person_id => person.id,
+                                             :authors => [self])
+      person.favorites  = Lotus::Feed.create(:person_id => person.id,
+                                             :authors => [self])
+      person.replies    = Lotus::Feed.create(:person_id => person.id,
+                                             :authors => [self])
+      person.mentions   = Lotus::Feed.create(:person_id => person.id,
+                                             :authors => [self])
       person.save
 
       keypair = Lotus::Crypto.new_keypair

@@ -132,28 +132,7 @@ module Lotus
     # A Date indicating an anniversary.
     key :anniversary
 
-    after_create :create_aggregates
-
     timestamps!
-
-    private
-
-    def create_aggregates
-      self.activities = create_aggregate
-      self.timeline   = create_aggregate
-      self.shared     = create_aggregate
-      self.favorites  = create_aggregate
-      self.replies    = create_aggregate
-      self.mentions   = create_aggregate
-      self.save
-    end
-
-    def create_aggregate
-      Lotus::Feed.create(:person_id => self.id,
-                         :authors   => [self])
-    end
-
-    public
 
     # Create a new Person if the given Person is not found by its id.
     def self.find_or_create_by_uid!(arg, *args)
