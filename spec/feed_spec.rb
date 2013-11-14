@@ -133,56 +133,45 @@ describe Lotus::Feed do
 
   describe "#initialize" do
     it "should allow a Lotus::Feed" do
-      lotus_feed = Lotus::Feed.new
-      lotus_feed.stubs(:to_hash).returns({:uid => "UID",
-                                          :authors => [],
-                                          :contributors => [],
-                                          :items => []})
+      lotus_feed = Lotus::Feed.new(:uid => "UID",
+                                   :authors => [],
+                                   :contributors => [],
+                                   :items => [])
 
       Lotus::Feed.new(lotus_feed).uid.must_equal "UID"
     end
 
     it "should find or create Lotus::Persons for those given in Lotus::Feed" do
-      lotus_feed = Lotus::Feed.new
-      lotus_feed.stubs(:to_hash).returns({:id => "UID",
-                                          :authors => [{:uid => "author UID",
-                                                        :url => "author URL"}],
-                                          :contributors => [],
-                                          :items => []})
-
       author = Lotus::Person.new
       Lotus::Person.expects(:find_or_create_by_uid!).returns(author)
 
-      Lotus::Feed.new(lotus_feed)
+      Lotus::Feed.new(:id => "UID",
+                      :authors => [{:uid => "author UID",
+                                    :url => "author URL"}],
+                      :contributors => [],
+                      :items => [])
     end
 
     it "should find or create Lotus::Persons for contributors given in Lotus::Feed" do
-      lotus_feed = Lotus::Feed.new
-      lotus_feed.stubs(:to_hash).returns({:id => "UID",
-                                          :contributors => [
-                                            {:uid => "author UID",
-                                             :url => "author URL"}],
-                                          :authors => [],
-                                          :items => []})
-
       author = Lotus::Person.new
       Lotus::Person.expects(:find_or_create_by_uid!).returns(author)
 
-      Lotus::Feed.new(lotus_feed)
+      Lotus::Feed.new(:id => "UID",
+                      :contributors => [{:uid => "author UID",
+                                         :url => "author URL"}],
+                      :authors => [],
+                      :items => [])
     end
 
-    it "should find or create Lotus::Persons for contributors given in Lotus::Feed" do
-      lotus_feed = Lotus::Feed.new
-      lotus_feed.stubs(:to_hash).returns({:id => "UID",
-                                          :contributors => [],
-                                          :authors => [],
-                                          :items => [{:uid => "UID",
-                                                        :url => "URL"}]})
-
+    it "should find or create Lotus::Activities for items given in Lotus::Feed" do
       activity = Lotus::Activity.new
       Lotus::Activity.expects(:find_or_create_by_uid!).returns(activity)
 
-      Lotus::Feed.new(lotus_feed)
+      Lotus::Feed.new(:id => "UID",
+                      :items => [{:uid => "author UID",
+                                  :url => "author URL"}],
+                      :authors => [],
+                      :contributors => [])
     end
   end
 

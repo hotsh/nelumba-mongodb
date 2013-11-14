@@ -13,7 +13,8 @@ module Lotus
     safe
 
     # An Authorization involves a Person.
-    one :person, :class_name => 'Lotus::Person'
+    key :person_id,     ObjectId
+    belongs_to :person, :class_name => 'Lotus::Person'
 
     # Whether or not this authorization requires ssl
     key :ssl
@@ -41,62 +42,8 @@ module Lotus
     validates_presence_of :identity
     validates_presence_of :hashed_password
 
-    before_validation :create_person_and_identity, :on => :create
-
     # Log modification
     timestamps!
-
-    private
-
-    # Creates a local Person and a local Identity
-    def create_person_and_identity
-      person = Lotus::Person.create(:authorization_id => self.id,
-                                    :nickname => self.username,
-                                    :name => self.username,
-                                    :display_name => self.username,
-                                    :preferred_username => self.username)
-
-      # Create url and uid for local Person
-      person.url = "http#{self.ssl ? "s" : ""}://#{self.domain}/people/#{person.id}"
-      person.uid = person.url
-
-      # Create feeds for local Person
-      person.activities = Lotus::Feed.create(:person_id => person.id,
-                                             :authors => [self])
-      person.timeline   = Lotus::Feed.create(:person_id => person.id,
-                                             :authors => [self])
-      person.shared     = Lotus::Feed.create(:person_id => person.id,
-                                             :authors => [self])
-      person.favorites  = Lotus::Feed.create(:person_id => person.id,
-                                             :authors => [self])
-      person.replies    = Lotus::Feed.create(:person_id => person.id,
-                                             :authors => [self])
-      person.mentions   = Lotus::Feed.create(:person_id => person.id,
-                                             :authors => [self])
-      person.save
-
-      keypair = Lotus::Crypto.new_keypair
-
-      self.identity = Lotus::Identity.create!(
-        :username => self.username,
-        :domain => self.domain,
-        :ssl => self.ssl,
-        :person_id => person.id,
-        :public_key => keypair.public_key,
-        :salmon_endpoint => "/people/#{person.id}/salmon",
-        :dialback_endpoint => "/people/#{person.id}/dialback",
-        :activity_inbox_endpoint => "/people/#{person.id}/inbox",
-        :activity_outbox_endpoint => "/people/#{person.id}/outbox",
-        :profile_page => "/people/#{person.id}",
-        :outbox_id => person.activities.id,
-        :inbox_id => person.timeline.id
-      )
-      self.identity_id = self.identity.id
-
-      self.private_key = keypair.private_key
-    end
-
-    public
 
     # Generate a Hash containing this person's LRDD meta info.
     def self.lrdd(username)
@@ -225,7 +172,25 @@ module Lotus
       params["hashed_password"] = Authorization.hash_password(params["password"])
       params.delete "password"
 
+      person = Lotus::Person.new_local(params["username"],
+                                       params["domain"],
+                                       params["ssl"])
+      params["person_id"] = person.id
+
+      keypair = Lotus::Crypto.new_keypair
+      params["private_key"] = keypair.private_key
+
+      identity = Lotus::Identity.new_local(person,
+                                           params["username"],
+                                           params["domain"],
+                                           params["ssl"],
+                                           keypair.public_key)
+      params["identity_id"] = identity.id
+
       params = Authorization.sanitize_params(params)
+
+      params["person"] = person
+      params["identity"] = identity
 
       super params, *args
     end

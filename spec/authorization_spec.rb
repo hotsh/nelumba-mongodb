@@ -44,8 +44,8 @@ end
 
 describe Lotus::Authorization do
   describe "Schema" do
-    it "should have one person" do
-      Lotus::Authorization.has_one?(:person).must_equal true
+    it "should have a person_id" do
+      Lotus::Authorization.keys.keys.must_include "person_id"
     end
 
     it "should have an identity_id" do
@@ -84,196 +84,144 @@ describe Lotus::Authorization do
   describe "create" do
     before do
       Lotus::Authorization.stubs(:hash_password).returns("hashed")
-      @authorization = Lotus::Authorization.new("username" => "wilkie",
-                                                "password" => "foobar")
-
-      author = Lotus::Person.new
-      author.stubs(:save).returns(true)
-      author.stubs(:update_attributes).returns(true)
-
-      @person = Lotus::Person.new
-      @person.stubs(:save).returns(true)
-      @person.stubs(:author).returns(author)
-      @person.stubs(:activities).returns(Lotus::Feed.new)
-      @person.stubs(:timeline).returns(Lotus::Feed.new)
-
-      identity = Lotus::Identity.new
-      identity.stubs(:save).returns(true)
-      identity.stubs(:author).returns(author)
-
-      author.stubs(:identity).returns(identity)
-      Lotus::Identity.stubs(:create!).returns(identity)
 
       keypair = Struct.new(:public_key, :private_key).new("PUBKEY", "PRIVKEY")
       Lotus::Crypto.stubs(:new_keypair).returns(keypair)
-
-      Lotus::Person.stubs(:create).returns(@person)
     end
 
     it "should create a person attached to this authorization" do
-      Lotus::Person.expects(:create)
-            .with(has_entry(:authorization_id => @authorization.id))
-            .returns(@person)
+      person = Lotus::Person.new_local "wilkie", "www.example.com", true
+      Lotus::Person.expects(:new_local).returns(person)
 
-      @authorization.save
+      Lotus::Authorization.new("username" => "wilkie",
+                               "password" => "foobar",
+                               "domain" => "www.example.com",
+                               "ssl" => true)
     end
 
-    it "should create a Person with the given nickname" do
-      Lotus::Person.expects(:create)
-            .with(has_entry(:nickname => "wilkie"))
-            .returns(@person)
+    it "should create a Person with the given username" do
+      person = Lotus::Person.new_local "wilkie", "www.example.com", true
+      Lotus::Person.expects(:new_local)
+                   .with("wilkie", anything, anything)
+                   .returns(person)
 
-      @authorization.save
+      Lotus::Authorization.new("username" => "wilkie",
+                               "password" => "foobar",
+                               "domain" => "www.example.com",
+                               "ssl" => true)
     end
 
-    it "should create a Person with the given name" do
-      Lotus::Person.expects(:create)
-            .with(has_entry(:name => "wilkie"))
-            .returns(@person)
+    it "should create a Person with the given domain" do
+      person = Lotus::Person.new_local "wilkie", "www.example.com", true
+      Lotus::Person.expects(:new_local)
+                   .with(anything, "www.example.com", anything)
+                   .returns(person)
 
-      @authorization.save
+      Lotus::Authorization.new("username" => "wilkie",
+                               "password" => "foobar",
+                               "domain" => "www.example.com",
+                               "ssl" => true)
     end
 
-    it "should create a Person with the given display name" do
-      Lotus::Person.expects(:create)
-            .with(has_entry(:display_name => "wilkie"))
-            .returns(@person)
+    it "should create a Person with the given ssl requirements" do
+      person = Lotus::Person.new_local "wilkie", "www.example.com", true
+      Lotus::Person.expects(:new_local)
+                   .with(anything, anything, true)
+                   .returns(person)
 
-      @authorization.save
-    end
-
-    it "should create a Person with the given preferred username" do
-      Lotus::Person.expects(:create)
-            .with(has_entry(:preferred_username => "wilkie"))
-            .returns(@person)
-
-      @authorization.save
+      Lotus::Authorization.new("username" => "wilkie",
+                               "password" => "foobar",
+                               "domain" => "www.example.com",
+                               "ssl" => true)
     end
 
     it "should create an Lotus::Identity" do
-      Lotus::Identity.expects(:create!)
-                     .returns(@person)
+      Lotus::Identity.expects(:new_local)
+                     .returns(Lotus::Identity.new)
 
-      Lotus::Authorization.create!(:username => "wilkie",
-                                   :password => "foobar")
+      Lotus::Authorization.new("username" => "wilkie",
+                               "password" => "foobar",
+                               "domain" => "www.example.com",
+                               "ssl" => true)
     end
 
     it "should create an Lotus::Identity with the generated public key" do
-      Lotus::Identity.expects(:create!)
-                     .with(has_entry(:public_key, "PUBKEY"))
-                     .returns(@person)
+      Lotus::Identity.expects(:new_local)
+                     .with(anything, anything, anything, anything, "PUBKEY")
+                     .returns(Lotus::Identity.new)
 
-      Lotus::Authorization.create!(:username => "wilkie",
-                                   :password => "foobar")
+      Lotus::Authorization.new("username" => "wilkie",
+                               "password" => "foobar",
+                               "domain" => "www.example.com",
+                               "ssl" => true)
     end
 
     it "should create an Lotus::Identity with the given username" do
-      Lotus::Identity.expects(:create!)
-              .with(has_entry(:username, "wilkie"))
-              .returns(@person)
+      Lotus::Identity.expects(:new_local)
+                     .with(anything, "wilkie", anything, anything, anything)
+                     .returns(Lotus::Identity.new)
 
-      @authorization.username = "wilkie"
-      Lotus::Authorization.create!(:username => "wilkie",
-                                   :password => "foobar")
+      Lotus::Authorization.new("username" => "wilkie",
+                               "password" => "foobar",
+                               "domain" => "www.example.com",
+                               "ssl" => true)
+    end
+
+    it "should create an Lotus::Identity with the given domain" do
+      Lotus::Identity.expects(:new_local)
+             .with(anything, anything, "www.example.com", anything, anything)
+             .returns(Lotus::Identity.new)
+
+      Lotus::Authorization.new("username" => "wilkie",
+                               "password" => "foobar",
+                               "domain" => "www.example.com",
+                               "ssl" => true)
+    end
+
+    it "should create an Lotus::Identity with the given ssl requirements" do
+      Lotus::Identity.expects(:new_local)
+                     .with(anything, anything, anything, true, anything)
+                     .returns(Lotus::Identity.new)
+
+      Lotus::Authorization.new("username" => "wilkie",
+                               "password" => "foobar",
+                               "domain" => "www.example.com",
+                               "ssl" => true)
     end
 
     it "should create an Lotus::Identity with the new person's author" do
-      Lotus::Identity.expects(:create!)
-              .with(has_entry(:person_id, @person.id))
-              .returns(@person)
+      person = Lotus::Person.new_local "wilkie", "www.example.com", true
+      Lotus::Person.stubs(:new_local).returns(person)
 
-      Lotus::Authorization.create!(:username => "wilkie",
-                                   :password => "foobar")
-    end
+      Lotus::Identity.expects(:new_local)
+                     .with(person, anything, anything, anything, anything)
+                     .returns(Lotus::Identity.new)
 
-    it "should create an Lotus::Identity with person's salmon endpoint" do
-      Lotus::Identity.expects(:create!)
-              .with(has_entry(:salmon_endpoint, "/people/#{@person.id}/salmon"))
-              .returns(@person)
-
-      Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
-    end
-
-    it "should create an Lotus::Identity with person's dialback endpoint" do
-      Lotus::Identity.expects(:create!)
-              .with(has_entry(:dialback_endpoint,
-                              "/people/#{@person.id}/dialback"))
-              .returns(@person)
-
-      Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
-    end
-
-    it "should create an Lotus::Identity with person's activity inbox endpoint" do
-      Lotus::Identity.expects(:create!)
-              .with(has_entry(:activity_inbox_endpoint,
-                              "/people/#{@person.id}/inbox"))
-              .returns(@person)
-
-      Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
-    end
-
-    it "should create an Lotus::Identity with person's activity outbox endpoint" do
-      Lotus::Identity.expects(:create!)
-              .with(has_entry(:activity_outbox_endpoint,
-                              "/people/#{@person.id}/outbox"))
-              .returns(@person)
-
-      Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
-    end
-
-    it "should create an Lotus::Identity with person's activity outbox endpoint" do
-      Lotus::Identity.expects(:create!)
-              .with(has_entry(:activity_outbox_endpoint,
-                              "/people/#{@person.id}/outbox"))
-              .returns(@person)
-
-      Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
-    end
-
-    it "should create an Lotus::Identity with person's profile page" do
-      Lotus::Identity.expects(:create!)
-              .with(has_entry(:profile_page, "/people/#{@person.id}"))
-              .returns(@person)
-
-      Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
-    end
-
-    it "should create an Lotus::Identity associated with the person's timeline" do
-      Lotus::Identity.expects(:create!)
-              .with(has_entry(:inbox_id, @person.timeline.id))
-              .returns(@person)
-
-      Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
-    end
-
-    it "should create an Lotus::Identity associated with the person's activities" do
-      Lotus::Identity.expects(:create!)
-              .with(has_entry(:outbox_id, @person.activities.id))
-              .returns(@person)
-
-      Lotus::Authorization.create!(:username => "wilkie",
-                            :password => "foobar")
+      Lotus::Authorization.new("username" => "wilkie",
+                               "password" => "foobar",
+                               "domain" => "www.example.com",
+                               "ssl" => true)
     end
 
     it "should associate a new Lotus::Identity with this Lotus::Authorization" do
-      @authorization = Lotus::Authorization.create!(:username => "wilkie",
-                                             :password => "foobar")
+      person = Lotus::Person.new_local "wilkie", "www.example.com", true
+      Lotus::Person.stubs(:new_local).returns(person)
 
-      @authorization.identity_id.must_equal @person.author.identity.id
+      auth = Lotus::Authorization.new("username" => "wilkie",
+                                      "password" => "foobar",
+                                      "domain" => "www.example.com",
+                                      "ssl" => true)
+
+      auth.identity_id.must_equal person.identity.id
     end
 
     it "should store the private key" do
-      @authorization = Lotus::Authorization.create!(:username => "wilkie",
-                                             :password => "foobar")
+      auth = Lotus::Authorization.new("username" => "wilkie",
+                                      "password" => "foobar",
+                                      "domain" => "www.example.com",
+                                      "ssl" => true)
 
-      @authorization.private_key.must_equal "PRIVKEY"
+      auth.private_key.must_equal "PRIVKEY"
     end
   end
 

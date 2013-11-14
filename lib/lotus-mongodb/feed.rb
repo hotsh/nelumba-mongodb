@@ -115,28 +115,31 @@ module Lotus
         hash = hash.to_hash
       end
 
-      hash[:authors] ||= []
-      hash[:authors].map! do |a|
-        if a.is_a?(Lotus::Person) && a.id != hash[:person_id]
-          a = Person.find_or_create_by_uid!(a)
+      if hash[:authors].is_a? Array
+        hash[:authors].map! do |author|
+          if author.is_a? Hash
+            author = Lotus::Person.find_or_create_by_uid!(author)
+          end
+          author
         end
-        a
       end
 
-      hash[:contributors] ||= []
-      hash[:contributors].map! do |a|
-        if a.is_a?(Lotus::Person) && a.id != hash[:person_id]
-          a = Person.find_or_create_by_uid!(a)
+      if hash[:contributors].is_a? Array
+        hash[:contributors].map! do |contributor|
+          if contributor.is_a? Hash
+            contributor = Lotus::Person.find_or_create_by_uid!(contributor)
+          end
+          contributor
         end
-        a
       end
 
-      hash[:items] ||= []
-      hash[:items].map! do |a|
-        if a.is_a? Lotus::Activity
-          a = Lotus::Activity.find_or_create_by_uid!(a)
+      if hash[:items].is_a? Array
+        hash[:items].map! do |item|
+          if item.is_a? Hash
+            item = Lotus::Activity.find_or_create_by_uid!(item)
+          end
+          item
         end
-        a
       end
 
       super hash, *args

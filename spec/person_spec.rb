@@ -2,6 +2,18 @@ require_relative 'helper'
 
 describe Lotus::Person do
   describe "Schema" do
+    it "should have one authorization" do
+      Lotus::Person.has_one?(:authorization).must_equal true
+    end
+
+    it "should have one identity" do
+      Lotus::Person.has_one?(:identity).must_equal true
+    end
+
+    it "should have one avatar" do
+      Lotus::Person.has_one?(:avatar).must_equal true
+    end
+
     it "should have a uid" do
       Lotus::Person.keys.keys.must_include "uid"
     end
@@ -65,9 +77,6 @@ describe Lotus::Person do
     it "should have a updated_at" do
       Lotus::Person.keys.keys.must_include "updated_at"
     end
-    it "should have an authorization id" do
-      Lotus::Person.keys.keys.must_include "authorization_id"
-    end
 
     it "should have an activities id" do
       Lotus::Person.keys.keys.must_include "activities_id"
@@ -112,35 +121,45 @@ describe Lotus::Person do
 
       @person = Lotus::Person.new
     end
+  end
+
+  describe "new_local" do
+    before do
+      @aggregate = Lotus::Feed.new
+      Lotus::Feed.stubs(:new).returns(@aggregate)
+
+      @person = Lotus::Person.new
+      Lotus::Person.stubs(:new).returns(@person)
+    end
 
     it "should create an activities aggregate upon creation" do
       @person.expects(:activities=).with(@aggregate)
-      @person.run_callbacks :create
+      Lotus::Person.new_local "wilkie", "www.example.com", true
     end
 
     it "should create a timeline aggregate upon creation" do
       @person.expects(:timeline=).with(@aggregate)
-      @person.run_callbacks :create
+      Lotus::Person.new_local "wilkie", "www.example.com", true
     end
 
     it "should create a shared aggregate upon creation" do
       @person.expects(:shared=).with(@aggregate)
-      @person.run_callbacks :create
+      Lotus::Person.new_local "wilkie", "www.example.com", true
     end
 
     it "should create a favorites aggregate upon creation" do
       @person.expects(:favorites=).with(@aggregate)
-      @person.run_callbacks :create
+      Lotus::Person.new_local "wilkie", "www.example.com", true
     end
 
     it "should create a replies aggregate upon creation" do
       @person.expects(:replies=).with(@aggregate)
-      @person.run_callbacks :create
+      Lotus::Person.new_local "wilkie", "www.example.com", true
     end
 
     it "should create a mentions aggregate upon creation" do
       @person.expects(:mentions=).with(@aggregate)
-      @person.run_callbacks :create
+      Lotus::Person.new_local "wilkie", "www.example.com", true
     end
   end
 
@@ -587,67 +606,55 @@ describe Lotus::Person do
   describe "discover!" do
     it "should create an identity when author is discovered" do
       identity = Lotus::Identity.new
-      identity.stubs(:to_hash).returns({})
-      identity.stubs(:person).returns({})
+
       Lotus::Identity.stubs(:find_by_identifier).returns(nil)
       Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
 
-      feed = Lotus::Feed.new
+      feed = Lotus::Feed.new(:authors => [Lotus::Person.new])
+      feed.stubs(:save)
+
       Lotus.stubs(:discover_feed).with(identity).returns(feed)
 
-      saved_feed = stub('Feed')
-      author = stub('Lotus::Person')
-      saved_feed.stubs(:authors).returns([author])
-      Lotus::Feed.stubs(:create!).with(feed).returns(saved_feed)
-
       Lotus::Identity.expects(:create!).returns(identity)
-
       Lotus::Person.discover! "wilkie@rstat.us"
     end
 
-    it "should return false if identity cannot be discovered" do
+    it "should return nil if identity cannot be discovered" do
       Lotus.stubs(:discover_identity).returns(nil)
 
-      Lotus::Person.discover!("bogus@rstat.us").must_equal false
+      Lotus::Person.discover!("bogus@rstat.us").must_equal nil
     end
 
-    it "should return false if feed cannot be discovered" do
+    it "should return nil if feed cannot be discovered" do
       identity = Lotus::Identity.new
-      identity.stubs(:to_hash).returns({})
+
       Lotus::Identity.stubs(:find_by_identifier).returns(nil)
+
       Lotus.stubs(:discover_identity).returns(identity)
+
       Lotus.stubs(:discover_feed).returns(nil)
 
-      Lotus::Person.discover!("bogus@rstat.us").must_equal false
+      Lotus::Person.discover!("bogus@rstat.us").must_equal nil
     end
 
-    it "should return Lotus::Person if does not exist" do
-      author = stub('Lotus::Person')
+    it "should return Lotus::Person if one does not exist" do
       Lotus::Identity.stubs(:find_by_identifier).returns(nil)
 
       identity = Lotus::Identity.new
-      identity.stubs(:to_hash).returns({})
-      identity.stubs(:person).returns(author)
       Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
 
-      feed = Lotus::Feed.new
+      author = Lotus::Person.new
+      feed = Lotus::Feed.new(:authors => [author])
+      feed.stubs(:save)
+
       Lotus.stubs(:discover_feed).with(identity).returns(feed)
-
-      saved_feed = stub('Feed')
-      saved_feed.stubs(:authors).returns([author])
-      Lotus::Feed.stubs(:create!).with(feed).returns(saved_feed)
-
-      Lotus::Identity.stubs(:create!).returns(identity)
 
       Lotus::Person.discover!("wilkie@rstat.us").must_equal author
     end
 
     it "should return existing Lotus::Person if it can" do
-      author = stub('Lotus::Person')
-
-      identity = Lotus::Identity.new
-      identity.stubs(:to_hash).returns({})
-      identity.stubs(:person).returns(author)
+      author = Lotus::Person.new
+      identity = Lotus::Identity.new(:person => author)
 
       Lotus::Identity.stubs(:find_by_identifier).returns(identity)
       Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(nil)
@@ -657,21 +664,15 @@ describe Lotus::Person do
 
     it "should assign the Identity outbox to the discovered feed" do
       identity = Lotus::Identity.new
-      identity.stubs(:to_hash).returns({})
-      identity.stubs(:person).returns({})
+
       Lotus::Identity.stubs(:find_by_identifier).returns(nil)
       Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
 
-      feed = Lotus::Feed.new
+      feed = Lotus::Feed.new(:authors => [Lotus::Person.new])
       Lotus.stubs(:discover_feed).with(identity).returns(feed)
 
-      saved_feed = stub('Feed')
-      author = stub('Lotus::Person')
-      saved_feed.stubs(:authors).returns([author])
-      Lotus::Feed.stubs(:create!).with(feed).returns(saved_feed)
-
       Lotus::Identity.expects(:create!)
-        .with(has_entry(:outbox, saved_feed))
+        .with(has_entry(:outbox, feed))
         .returns(identity)
 
       Lotus::Person.discover! "wilkie@rstat.us"
@@ -679,21 +680,15 @@ describe Lotus::Person do
 
     it "should assign the Identity person to the discovered Person" do
       identity = Lotus::Identity.new
-      identity.stubs(:to_hash).returns({})
-      identity.stubs(:person).returns({})
       Lotus::Identity.stubs(:find_by_identifier).returns(nil)
       Lotus.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
 
-      feed = Lotus::Feed.new
+      author = Lotus::Person.new
+      feed = Lotus::Feed.new(:authors => [author])
       Lotus.stubs(:discover_feed).with(identity).returns(feed)
 
-      saved_feed = stub('Feed')
-      author = stub('Lotus::Person')
-      saved_feed.stubs(:authors).returns([author])
-      Lotus::Feed.stubs(:create!).with(feed).returns(saved_feed)
-
       Lotus::Identity.expects(:create!)
-        .with(has_entry(:person, author))
+        .with(has_entry(:person_id, author.id))
         .returns(identity)
 
       Lotus::Person.discover! "wilkie@rstat.us"

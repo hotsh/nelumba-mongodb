@@ -179,18 +179,33 @@ describe Lotus::Activity do
       Lotus::Activity.find_or_create_by_uid!(:uid => "UID")
     end
 
-    it "should create via Lotus::Activity when the Lotus::Activity is not found" do
+    it "should save the given Lotus::Activity when not found" do
       lotus_activity = Lotus::Activity.new
       lotus_activity.stubs(:id).returns("UID")
 
-      Lotus::Activity.expects(:create!).with(lotus_activity)
+      lotus_activity.expects(:save)
       Lotus::Activity.find_or_create_by_uid!(lotus_activity)
+    end
+
+    it "should create a Lotus::Activity from a hash when not found" do
+      hash = {:uid => "UID"}
+
+      Lotus::Activity.expects(:create!).with(hash)
+      Lotus::Activity.find_or_create_by_uid!(hash)
     end
 
     it "should account for race condition where entry was created after find" do
       Lotus::Activity.stubs(:first).returns(nil).then.returns("activity")
       Lotus::Activity.stubs(:create!).raises("")
       Lotus::Activity.find_or_create_by_uid!(:uid => "UID").must_equal "activity"
+    end
+
+    it "should save the attached author found in the given hash" do
+      author_hash = {:uid => "PERSON_UID"}
+      hash = {:uid => "UID", :author => author_hash}
+
+      Lotus::Person.expects(:find_or_create_by_uid!).with(author_hash)
+      Lotus::Activity.find_or_create_by_uid!(hash)
     end
   end
 

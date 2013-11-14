@@ -76,6 +76,23 @@ module Lotus
       self.public_key
     end
 
+    def self.new_local(person, username, domain, ssl, public_key)
+      Lotus::Identity.new(
+        :username => username,
+        :domain => domain,
+        :ssl => ssl,
+        :person_id => person.id,
+        :public_key => public_key,
+        :salmon_endpoint => "/people/#{person.id}/salmon",
+        :dialback_endpoint => "/people/#{person.id}/dialback",
+        :activity_inbox_endpoint => "/people/#{person.id}/inbox",
+        :activity_outbox_endpoint => "/people/#{person.id}/outbox",
+        :profile_page => "/people/#{person.id}",
+        :outbox_id => person.activities.id,
+        :inbox_id => person.timeline.id
+      )
+    end
+
     def self.find_by_identifier(identifier)
       matches  = identifier.match /^(?:.+\:)?([^@]+)@(.+)$/
 

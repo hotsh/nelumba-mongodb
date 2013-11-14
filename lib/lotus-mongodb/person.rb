@@ -14,12 +14,11 @@ module Lotus
     # Every Person has a representation of their central Identity.
     one :identity, :class_name => 'Lotus::Identity'
 
+    # A Person MAY have an Authorization, if they are local
+    one :authorization, :class_name => 'Lotus::Authorization'
+
     # Each Person has an Avatar icon that identifies them.
     one :avatar, :class_name => 'Lotus::Avatar'
-
-    # A Person can be Personized to use this system.
-    key :authorization_id, ObjectId
-    belongs_to :authorization, :class_name => 'Lotus::Authorization'
 
     # Our contributions.
     key :activities_id,     ObjectId
@@ -133,6 +132,35 @@ module Lotus
     key :anniversary
 
     timestamps!
+
+    # Create a new local Person
+    def self.new_local(username, domain, ssl)
+      person = Lotus::Person.new(:nickname => username,
+                                 :name => username,
+                                 :display_name => username,
+                                 :preferred_username => username)
+
+      # Create url and uid for local Person
+      person.url =
+        "http#{ssl ? "s" : ""}://#{domain}/people/#{person.id}"
+      person.uid = person.url
+
+      # Create feeds for local Person
+      person.activities = Lotus::Feed.new(:person_id => person.id,
+                                          :authors   => [person])
+      person.timeline   = Lotus::Feed.new(:person_id => person.id,
+                                          :authors   => [person])
+      person.shared     = Lotus::Feed.new(:person_id => person.id,
+                                          :authors   => [person])
+      person.favorites  = Lotus::Feed.new(:person_id => person.id,
+                                          :authors   => [person])
+      person.replies    = Lotus::Feed.new(:person_id => person.id,
+                                          :authors   => [person])
+      person.mentions   = Lotus::Feed.new(:person_id => person.id,
+                                          :authors   => [person])
+
+      person
+    end
 
     # Create a new Person if the given Person is not found by its id.
     def self.find_or_create_by_uid!(arg, *args)
@@ -358,11 +386,11 @@ module Lotus
     end
 
     def remote?
-      !self.local
+      !self.local?
     end
 
     def local?
-      !self.authorization_id.nil?
+      !self.authorization.nil?
     end
 
     # Determines the name to use to refer to this Person in a view.
@@ -476,7 +504,7 @@ module Lotus
       feed = Lotus.discover_feed(identity)
       return nil unless feed
 
-      feed = Lotus::Feed.create!(feed)
+      feed.save
 
       identity = identity.to_hash.merge(:outbox => feed,
                                         :person_id => feed.authors.first.id)
