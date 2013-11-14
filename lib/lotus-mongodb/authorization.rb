@@ -140,6 +140,7 @@ module Lotus
 
     # Cleanup any unexpected keys.
     def self.sanitize_params(params)
+      # Convert Symbols to Strings
       params.keys.each do |k|
         if k.is_a? Symbol
           params[k.to_s] = params[k]
@@ -158,6 +159,12 @@ module Lotus
       params.delete("id")
       params.delete("_id")
 
+      # Convert to symbols
+      params.keys.each do |k|
+        params[k.intern] = params[k]
+        params.delete k
+      end
+
       params
     end
 
@@ -172,25 +179,25 @@ module Lotus
       params["hashed_password"] = Authorization.hash_password(params["password"])
       params.delete "password"
 
-      person = Lotus::Person.new_local(params["username"],
-                                       params["domain"],
-                                       params["ssl"])
-      params["person_id"] = person.id
-
-      keypair = Lotus::Crypto.new_keypair
-      params["private_key"] = keypair.private_key
-
-      identity = Lotus::Identity.new_local(person,
-                                           params["username"],
-                                           params["domain"],
-                                           params["ssl"],
-                                           keypair.public_key)
-      params["identity_id"] = identity.id
-
       params = Authorization.sanitize_params(params)
 
-      params["person"] = person
-      params["identity"] = identity
+      person = Lotus::Person.new_local(params[:username],
+                                       params[:domain],
+                                       params[:ssl])
+      params[:person_id] = person.id
+
+      keypair = Lotus::Crypto.new_keypair
+      params[:private_key] = keypair.private_key
+
+      identity = Lotus::Identity.new_local(person,
+                                           params[:username],
+                                           params[:domain],
+                                           params[:ssl],
+                                           keypair.public_key)
+      params[:identity_id] = identity.id
+
+      params[:person] = person
+      params[:identity] = identity
 
       super params, *args
     end

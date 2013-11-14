@@ -7,37 +7,14 @@ module Lotus
 end
 
 def create_authorization(params)
+  params["domain"] ||= "www.example.com"
+
   Lotus::Authorization.stubs(:hash_password).returns("hashed")
-  authorization = Lotus::Authorization.new(params)
-
-  author = Lotus::Person.new
-  author.stubs(:save).returns(true)
-  author.stubs(:update_attributes).returns(true)
-
-  person = Lotus::Person.new
-  person.stubs(:save).returns(true)
-  person.stubs(:author).returns(author)
-  person.stubs(:activities).returns(Lotus::Feed.new)
-
-  authorization.stubs(:person).returns(person)
-
-  outbox = Lotus::Feed.new
-
-  identity = Lotus::Identity.new
-  identity.stubs(:domain).returns "example.com"
-  identity.stubs(:profile_page).returns "/people/#{person.id}"
-  identity.stubs(:save).returns(true)
-  identity.stubs(:author).returns(author)
-  identity.stubs(:outbox).returns(outbox)
-
-  author.stubs(:identity).returns(identity)
-  authorization.stubs(:identity).returns(identity)
-  Lotus::Identity.stubs(:create!).returns(identity)
-
-  Lotus::Person.stubs(:create).returns(person)
 
   keypair = Struct.new(:public_key, :private_key).new("PUBKEY", "PRIVKEY")
   Lotus::Crypto.stubs(:new_keypair).returns(keypair)
+
+  authorization = Lotus::Authorization.new(params)
 
   authorization
 end
@@ -228,39 +205,39 @@ describe Lotus::Authorization do
   describe "lrdd" do
     it "returns nil when the username cannot be found" do
       Lotus::Authorization.stubs(:find_by_username).returns(nil)
-      Lotus::Authorization.lrdd("bogus@example.com").must_equal nil
+      Lotus::Authorization.lrdd("bogus@www.example.com").must_equal nil
     end
 
     it "should contain a subject matching their webfinger" do
       authorization = create_authorization("username" => "wilkie",
                                            "password" => "foobar")
       Lotus::Authorization.stubs(:find_by_username).returns(authorization)
-      Lotus::Authorization.lrdd("wilkie@example.com")[:subject]
-                   .must_equal "acct:wilkie@example.com"
+      Lotus::Authorization.lrdd("wilkie@www.example.com")[:subject]
+                   .must_equal "acct:wilkie@www.example.com"
     end
 
     it "should contain an alias to the profile" do
       authorization = create_authorization("username" => "wilkie",
                                            "password" => "foobar")
       Lotus::Authorization.stubs(:find_by_username).returns(authorization)
-      Lotus::Authorization.lrdd("wilkie@example.com")[:aliases]
-        .must_include "http://example.com/people/#{authorization.person.id}"
+      Lotus::Authorization.lrdd("wilkie@www.example.com")[:aliases]
+        .must_include "http://www.example.com/people/#{authorization.person.id}"
     end
 
     it "should contain an alias to the profile" do
       authorization = create_authorization("username" => "wilkie",
                                            "password" => "foobar")
       Lotus::Authorization.stubs(:find_by_username).returns(authorization)
-      Lotus::Authorization.lrdd("wilkie@example.com")[:aliases]
-        .must_include "http://example.com/people/#{authorization.person.id}"
+      Lotus::Authorization.lrdd("wilkie@www.example.com")[:aliases]
+        .must_include "http://www.example.com/people/#{authorization.person.id}"
     end
 
     it "should contain an alias to the feed" do
       authorization = create_authorization("username" => "wilkie",
                                            "password" => "foobar")
       Lotus::Authorization.stubs(:find_by_username).returns(authorization)
-      Lotus::Authorization.lrdd("wilkie@example.com")[:aliases].must_include(
-        "http://example.com/feeds/#{authorization.identity.outbox.id}")
+      Lotus::Authorization.lrdd("wilkie@www.example.com")[:aliases].must_include(
+        "http://www.example.com/feeds/#{authorization.identity.outbox.id}")
     end
 
     it "should contain profile-page link" do
@@ -269,9 +246,9 @@ describe Lotus::Authorization do
       person_id = authorization.person.id
 
       Lotus::Authorization.stubs(:find_by_username).returns(authorization)
-      Lotus::Authorization.lrdd("wilkie@example.com")[:links]
+      Lotus::Authorization.lrdd("wilkie@www.example.com")[:links]
         .must_include({:rel  => "http://webfinger.net/rel/profile-page",
-                       :href => "http://example.com/people/#{person_id}"})
+                       :href => "http://www.example.com/people/#{person_id}"})
     end
 
     it "should contain updates-from link" do
@@ -280,9 +257,9 @@ describe Lotus::Authorization do
       feed_id = authorization.identity.outbox.id
 
       Lotus::Authorization.stubs(:find_by_username).returns(authorization)
-      Lotus::Authorization.lrdd("wilkie@example.com")[:links]
+      Lotus::Authorization.lrdd("wilkie@www.example.com")[:links]
         .must_include({:rel  => "http://schemas.google.com/g/2010#updates-from",
-                       :href => "http://example.com/feeds/#{feed_id}"})
+                       :href => "http://www.example.com/feeds/#{feed_id}"})
     end
 
     it "should contain salmon link" do
@@ -291,9 +268,9 @@ describe Lotus::Authorization do
       person_id = authorization.person.id
 
       Lotus::Authorization.stubs(:find_by_username).returns(authorization)
-      Lotus::Authorization.lrdd("wilkie@example.com")[:links]
+      Lotus::Authorization.lrdd("wilkie@www.example.com")[:links]
         .must_include(:rel  => "salmon",
-                      :href => "http://example.com/people/#{person_id}/salmon")
+                      :href => "http://www.example.com/people/#{person_id}/salmon")
     end
 
     it "should contain salmon-replies link" do
@@ -302,9 +279,9 @@ describe Lotus::Authorization do
       person_id = authorization.person.id
 
       Lotus::Authorization.stubs(:find_by_username).returns(authorization)
-      Lotus::Authorization.lrdd("wilkie@example.com")[:links]
+      Lotus::Authorization.lrdd("wilkie@www.example.com")[:links]
         .must_include(:rel  => "http://salmon-protocol.org/ns/salmon-replies",
-                      :href => "http://example.com/people/#{person_id}/salmon")
+                      :href => "http://www.example.com/people/#{person_id}/salmon")
     end
 
     it "should contain salmon-mention link" do
@@ -313,9 +290,9 @@ describe Lotus::Authorization do
       person_id = authorization.person.id
 
       Lotus::Authorization.stubs(:find_by_username).returns(authorization)
-      Lotus::Authorization.lrdd("wilkie@example.com")[:links]
+      Lotus::Authorization.lrdd("wilkie@www.example.com")[:links]
         .must_include(:rel  => "http://salmon-protocol.org/ns/salmon-mention",
-                      :href => "http://example.com/people/#{person_id}/salmon")
+                      :href => "http://www.example.com/people/#{person_id}/salmon")
     end
 
     it "should contain magic-public-key link" do
@@ -326,7 +303,7 @@ describe Lotus::Authorization do
       authorization.identity.public_key = "PUBLIC_KEY"
 
       Lotus::Authorization.stubs(:find_by_username).returns(authorization)
-      Lotus::Authorization.lrdd("wilkie@example.com")[:links]
+      Lotus::Authorization.lrdd("wilkie@www.example.com")[:links]
         .must_include(:rel  => "magic-public-key",
                       :href => "data:application/magic-public-key,PUBLIC_KEY")
     end
@@ -339,7 +316,7 @@ describe Lotus::Authorization do
       Date.any_instance.expects(:>>).with(1).returns(check_date)
 
       Lotus::Authorization.stubs(:find_by_username).returns(authorization)
-      Lotus::Authorization.lrdd("wilkie@example.com")[:expires].must_equal(
+      Lotus::Authorization.lrdd("wilkie@www.example.com")[:expires].must_equal(
         "#{check_date.xmlschema}Z")
     end
   end
@@ -347,15 +324,15 @@ describe Lotus::Authorization do
   describe "jrd" do
     it "should simply take the lrdd and run to_json" do
       lrdd_hash = {}
-      Lotus::Authorization.stubs(:lrdd).with("wilkie@example.com").returns(lrdd_hash)
+      Lotus::Authorization.stubs(:lrdd).with("wilkie@www.example.com").returns(lrdd_hash)
       lrdd_hash.stubs(:to_json).returns("JSON")
 
-      Lotus::Authorization.jrd("wilkie@example.com").must_equal "JSON"
+      Lotus::Authorization.jrd("wilkie@www.example.com").must_equal "JSON"
     end
 
     it "should return nil when lrdd returns nil" do
       Lotus::Authorization.stubs(:lrdd).returns(nil)
-      Lotus::Authorization.jrd("bogus@example.com").must_equal nil
+      Lotus::Authorization.jrd("bogus@www.example.com").must_equal nil
     end
   end
 
@@ -374,14 +351,14 @@ describe Lotus::Authorization do
                                            {:rel  => "b rel",
                                             :href => "b href"}])
 
-      @xrd = Lotus::Authorization.xrd("wilkie@example.com")
+      @xrd = Lotus::Authorization.xrd("wilkie@www.example.com")
 
       @xml = XML::Parser.string(@xrd).parse
     end
 
     it "should return nil when lrdd returns nil" do
       Lotus::Authorization.stubs(:lrdd).returns(nil)
-      Lotus::Authorization.xrd("bogus@example.com").must_equal nil
+      Lotus::Authorization.xrd("bogus@www.example.com").must_equal nil
     end
 
     it "should publish a version of 1.0" do
@@ -407,17 +384,17 @@ describe Lotus::Authorization do
     it "should contain the <Subject>" do
       @xml.root.find_first('xmlns:Subject',
                            'xmlns:http://docs.oasis-open.org/ns/xri/xrd-1.0')
-        .content.must_equal Lotus::Authorization.lrdd("wilkie@example.com")[:subject]
+        .content.must_equal Lotus::Authorization.lrdd("wilkie@www.example.com")[:subject]
     end
 
     it "should contain the <Expires>" do
       @xml.root.find_first('xmlns:Expires',
                            'xmlns:http://docs.oasis-open.org/ns/xri/xrd-1.0')
-        .content.must_equal Lotus::Authorization.lrdd("wilkie@example.com")[:expires]
+        .content.must_equal Lotus::Authorization.lrdd("wilkie@www.example.com")[:expires]
     end
 
     it "should contain the <Alias> tags" do
-      aliases = Lotus::Authorization.lrdd("wilkie@example.com")[:aliases]
+      aliases = Lotus::Authorization.lrdd("wilkie@www.example.com")[:aliases]
       @xml.root.find('xmlns:Alias',
                   'xmlns:http://docs.oasis-open.org/ns/xri/xrd-1.0').each do |t|
         index = aliases.index(t.content)
@@ -428,7 +405,7 @@ describe Lotus::Authorization do
     end
 
     it "should contain the <Link> tags" do
-      links = Lotus::Authorization.lrdd("wilkie@example.com")[:links]
+      links = Lotus::Authorization.lrdd("wilkie@www.example.com")[:links]
       @xml.root.find('xmlns:Link',
                   'xmlns:http://docs.oasis-open.org/ns/xri/xrd-1.0').each do |t|
         link = {:rel  => t.attributes.get_attribute('rel').value,
@@ -483,35 +460,35 @@ describe Lotus::Authorization do
 
       Lotus::Authorization.keys.keys.each do |k|
         next if ["_id"].include? k
-        hash[k].must_equal "foobar"
+        hash[k.intern].must_equal "foobar"
       end
     end
 
     it "should remove password key" do
       hash = {"password" => "foobar"}
       hash = Lotus::Authorization.sanitize_params(hash)
-      hash.keys.wont_include "password"
+      hash.keys.wont_include :password
     end
 
-    it "should convert symbols to strings" do
+    it "should convert strings to symbols" do
       hash = {}
       Lotus::Authorization.keys.keys.each do |k|
         next if ["_id"].include? k
-        hash[k.intern] = "foobar"
+        hash[k] = "foobar"
       end
 
       hash = Lotus::Authorization.sanitize_params(hash)
 
       Lotus::Authorization.keys.keys.each do |k|
         next if ["_id"].include? k
-        hash[k].must_equal "foobar"
+        hash[k.intern].must_equal "foobar"
       end
     end
 
     it "should not allow _id" do
       hash = {"_id" => "bogus"}
       hash = Lotus::Authorization.sanitize_params(hash)
-      hash.keys.wont_include "_id"
+      hash.keys.wont_include :_id
     end
 
     it "should not allow arbitrary keys" do

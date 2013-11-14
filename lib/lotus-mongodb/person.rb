@@ -148,16 +148,27 @@ module Lotus
       # Create feeds for local Person
       person.activities = Lotus::Feed.new(:person_id => person.id,
                                           :authors   => [person])
+      person.activities_id = person.activities.id
+
       person.timeline   = Lotus::Feed.new(:person_id => person.id,
                                           :authors   => [person])
+      person.timeline_id = person.timeline.id
+
       person.shared     = Lotus::Feed.new(:person_id => person.id,
                                           :authors   => [person])
+      person.shared_id = person.shared.id
+
       person.favorites  = Lotus::Feed.new(:person_id => person.id,
                                           :authors   => [person])
+      person.favorites_id = person.favorites.id
+
       person.replies    = Lotus::Feed.new(:person_id => person.id,
                                           :authors   => [person])
+      person.replies_id = person.replies.id
+
       person.mentions   = Lotus::Feed.new(:person_id => person.id,
                                           :authors   => [person])
+      person.mentions_id = person.mentions.id
 
       person
     end

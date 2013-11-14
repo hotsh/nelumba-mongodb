@@ -133,33 +133,43 @@ describe Lotus::Person do
     end
 
     it "should create an activities aggregate upon creation" do
-      @person.expects(:activities=).with(@aggregate)
+      @person.expects(:activities_id=).with(@aggregate.id)
       Lotus::Person.new_local "wilkie", "www.example.com", true
     end
 
     it "should create a timeline aggregate upon creation" do
-      @person.expects(:timeline=).with(@aggregate)
+      @person.expects(:timeline_id=).with(@aggregate.id)
       Lotus::Person.new_local "wilkie", "www.example.com", true
     end
 
     it "should create a shared aggregate upon creation" do
-      @person.expects(:shared=).with(@aggregate)
+      @person.expects(:shared_id=).with(@aggregate.id)
       Lotus::Person.new_local "wilkie", "www.example.com", true
     end
 
     it "should create a favorites aggregate upon creation" do
-      @person.expects(:favorites=).with(@aggregate)
+      @person.expects(:favorites_id=).with(@aggregate.id)
       Lotus::Person.new_local "wilkie", "www.example.com", true
     end
 
     it "should create a replies aggregate upon creation" do
-      @person.expects(:replies=).with(@aggregate)
+      @person.expects(:replies_id=).with(@aggregate.id)
       Lotus::Person.new_local "wilkie", "www.example.com", true
     end
 
     it "should create a mentions aggregate upon creation" do
-      @person.expects(:mentions=).with(@aggregate)
+      @person.expects(:mentions_id=).with(@aggregate.id)
       Lotus::Person.new_local "wilkie", "www.example.com", true
+    end
+
+    it "should set the url to a valid url for the given domain" do
+      @person.expects(:url=).with("http://status.example.com/people/#{@person.id}")
+      Lotus::Person.new_local "wilkie", "status.example.com", false
+    end
+
+    it "should respect ssl requirements in the url" do
+      @person.expects(:url=).with("https://status.example.com/people/#{@person.id}")
+      Lotus::Person.new_local "wilkie", "status.example.com", true
     end
   end
 
@@ -869,7 +879,7 @@ describe Lotus::Person do
     it "should not allow _id" do
       hash = {"_id" => "bogus"}
       hash = Lotus::Person.sanitize_params(hash)
-      hash.keys.wont_include "_id"
+      hash.keys.wont_include :_id
     end
 
     it "should not allow arbitrary keys" do
