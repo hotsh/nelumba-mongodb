@@ -76,6 +76,18 @@ describe Lotus::Authorization do
                                "ssl" => true)
     end
 
+    it "should save the person attached to this authorization" do
+      person = Lotus::Person.new_local "wilkie", "www.example.com", true
+      Lotus::Person.stubs(:new_local).returns(person)
+
+      Lotus::Authorization.new("username" => "wilkie",
+                               "password" => "foobar",
+                               "domain" => "www.example.com",
+                               "ssl" => true)
+
+      Lotus::Person.first(:id => person.id).activities_id.wont_equal nil
+    end
+
     it "should create a Person with the given username" do
       person = Lotus::Person.new_local "wilkie", "www.example.com", true
       Lotus::Person.expects(:new_local)

@@ -184,6 +184,7 @@ module Lotus
       person = Lotus::Person.new_local(params[:username],
                                        params[:domain],
                                        params[:ssl])
+      person.save
       params[:person_id] = person.id
 
       keypair = Lotus::Crypto.new_keypair
@@ -194,6 +195,7 @@ module Lotus
                                            params[:domain],
                                            params[:ssl],
                                            keypair.public_key)
+      identity.save
       params[:identity_id] = identity.id
 
       params[:person] = person
