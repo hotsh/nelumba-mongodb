@@ -17,3 +17,9 @@ group :test do
   gem "awesome_print"
   gem "rack-test"
 end
+
+platforms :rbx do
+  gem "json"
+  gem "racc"
+  gem "rubysl"
+end
