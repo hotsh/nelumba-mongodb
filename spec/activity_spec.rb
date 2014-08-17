@@ -135,6 +135,15 @@ describe Lotus::Activity do
 
       activity.actor_type.must_equal "Activity"
     end
+
+    it "should return the given object instead of querying the database" do
+      activity = Lotus::Activity.new
+      actor = Lotus::Activity.new
+
+      activity.actor = actor
+
+      activity.actor.id.must_equal actor.id
+    end
   end
 
   describe "#actor" do

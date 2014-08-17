@@ -150,6 +150,8 @@ module Lotus
         return
       end
 
+      @actor = obj
+
       self.actor_id   = obj.id
       self.actor_type = obj.class.to_s
       self.actor_type = self.actor_type[7..-1] if self.actor_type.start_with? "Lotus::"
@@ -157,6 +159,8 @@ module Lotus
 
     # Get the actor.
     def actor
+      return @actor if @actor
+
       return nil if self.actor_type && !Lotus.const_defined?(self.actor_type)
       klass = Lotus.const_get(self.actor_type) if self.actor_type
       @actor = klass.first(:id => self.actor_id) if klass && self.actor_id
