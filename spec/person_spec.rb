@@ -70,12 +70,12 @@ describe Lotus::Person do
       Lotus::Person.keys.keys.must_include "anniversary"
     end
 
-    it "should have a created_at" do
-      Lotus::Person.keys.keys.must_include "created_at"
+    it "should have a published" do
+      Lotus::Person.keys.keys.must_include "published"
     end
 
-    it "should have a updated_at" do
-      Lotus::Person.keys.keys.must_include "updated_at"
+    it "should have a updated" do
+      Lotus::Person.keys.keys.must_include "updated"
     end
 
     it "should have an activities id" do

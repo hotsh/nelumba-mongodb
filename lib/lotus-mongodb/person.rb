@@ -131,7 +131,16 @@ module Lotus
     # A Date indicating an anniversary.
     key :anniversary
 
-    timestamps!
+    # Automated Timestamps
+    key :published, Time
+    key :updated,   Time
+    before_save :update_timestamps
+
+    def update_timestamps
+      now = Time.now.utc
+      self[:published] ||= now if !persisted?
+      self[:updated]     = now
+    end
 
     # Create a new local Person
     def self.new_local(username, domain, ssl)
