@@ -49,7 +49,7 @@ module Lotus
     key :items_ids,  Array
     many :items,     :class_name => 'Lotus::Activity',
                      :in         => :items_ids,
-                     :order      => :created_at.desc
+                     :order      => :published.desc
 
     # A Hash containing information about the entity that is generating content
     # for this Feed when it isn't a person.
@@ -64,8 +64,16 @@ module Lotus
     # TODO: Normalize the first 100 or so activities. I dunno.
     key :normalized
 
-    # Log modification
-    timestamps!
+    # Automated Timestamps
+    key :published, Time
+    key :updated,   Time
+    before_save :update_timestamps
+
+    def update_timestamps
+      now = Time.now.utc
+      self[:published] ||= now if !persisted?
+      self[:updated]     = now
+    end
 
     # The external feeds being aggregated.
     key  :following_ids, Array
@@ -184,7 +192,7 @@ module Lotus
 
     # Retrieve the feed's activities with the most recent first.
     def ordered
-      Lotus::Activity.where(:id => self.items_ids).order(:created_at => :desc)
+      Lotus::Activity.where(:id => self.items_ids).order(:published => :desc)
     end
 
     # Follow the given feed. When a new post is placed in this feed, it

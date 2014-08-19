@@ -54,12 +54,12 @@ describe Lotus::Feed do
       Lotus::Feed.keys.keys.must_include "generator"
     end
 
-    it "should have a created_at" do
-      Lotus::Feed.keys.keys.must_include "created_at"
+    it "should have a published" do
+      Lotus::Feed.keys.keys.must_include "published"
     end
 
-    it "should have a updated_at" do
-      Lotus::Feed.keys.keys.must_include "updated_at"
+    it "should have a updated" do
+      Lotus::Feed.keys.keys.must_include "updated"
     end
 
     it "should have a person_id" do
@@ -359,7 +359,7 @@ describe Lotus::Feed do
 
       query = stub('Plucky')
       query.expects(:order)
-        .with(has_entry(:created_at, :desc))
+        .with(has_entry(:published, :desc))
         .returns("ordered")
 
       Lotus::Activity
