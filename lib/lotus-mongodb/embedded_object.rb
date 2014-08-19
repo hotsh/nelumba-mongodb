@@ -15,14 +15,15 @@ module Lotus
         key :content
         key :image
 
-        timestamps!
+        # Automated Timestamps
+        key :published, Time
+        key :updated,   Time
+        before_save :update_timestamps
 
-        def published
-          self.created_at
-        end
-
-        def updated
-          self.updated_at
+        def update_timestamps
+          now = Time.now.utc
+          self[:published] ||= now if !persisted?
+          self[:updated]     = now
         end
 
         def self.find_by_id(id)

@@ -2,9 +2,6 @@ module Lotus
   class Activity
     include Lotus::Object
 
-    # Ensure writes happen
-    safe
-
     # All Activities originate from one particular Feed.
     key :feed_id, ObjectId
     belongs_to :feed, :class_name => 'Lotus::Feed'
@@ -82,7 +79,6 @@ module Lotus
       unless self.uid && self.url
         self.uid = "/activities/#{self.id}"
         self.url = "/activities/#{self.id}"
-        self.save
       end
     end
 
@@ -285,7 +281,7 @@ module Lotus
         :object_type  => self.type || :note,
         :object_owner => object_owner,
         :subject      => self.actor,
-        :when         => self.updated_at,
+        :when         => self.updated,
         :activity     => self
       }
     end

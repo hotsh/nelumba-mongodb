@@ -8,7 +8,7 @@ module Lotus
 
         include MongoMapper::Document
 
-        # Ensure writes happen
+        # Ensure writes happen (lol mongo defaults)
         safe
 
         belongs_to :author, :class_name => 'Lotus::Person'
@@ -22,14 +22,15 @@ module Lotus
         key :content
         key :image
 
-        timestamps!
+        # Automated Timestamps
+        key :published, Time
+        key :updated,   Time
+        before_save :update_timestamps
 
-        def published
-          self.created_at
-        end
-
-        def updated
-          self.updated_at
+        def update_timestamps
+          now = Time.now.utc
+          self[:published] ||= now if !persisted?
+          self[:updated]     = now
         end
       end
     end

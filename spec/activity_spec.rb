@@ -74,12 +74,12 @@ describe Lotus::Activity do
       Lotus::Activity.keys.keys.must_include "likes_ids"
     end
 
-    it "should have a created_at" do
-      Lotus::Activity.keys.keys.must_include "created_at"
+    it "should have a published" do
+      Lotus::Activity.keys.keys.must_include "published"
     end
 
-    it "should have a updated_at" do
-      Lotus::Activity.keys.keys.must_include "updated_at"
+    it "should have a updated" do
+      Lotus::Activity.keys.keys.must_include "updated"
     end
   end
 
@@ -348,7 +348,7 @@ describe Lotus::Activity do
     it "should yield when as the modified date" do
       activity = Lotus::Activity.create
 
-      activity.parts_of_speech[:when].must_equal activity.updated_at
+      activity.parts_of_speech[:when].must_equal activity.updated
     end
   end
 

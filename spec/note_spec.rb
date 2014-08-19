@@ -34,12 +34,12 @@ describe Lotus::Note do
       Lotus::Note.keys.keys.must_include "author_id"
     end
 
-    it "should have a created_at" do
-      Lotus::Note.keys.keys.must_include "created_at"
+    it "should have a published" do
+      Lotus::Note.keys.keys.must_include "published"
     end
 
-    it "should have a updated_at" do
-      Lotus::Note.keys.keys.must_include "updated_at"
+    it "should have a updated" do
+      Lotus::Note.keys.keys.must_include "updated"
     end
   end
 
