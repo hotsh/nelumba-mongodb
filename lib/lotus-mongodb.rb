@@ -1,7 +1,16 @@
 require 'lotus'
 require 'mongo_mapper'
 
-MongoMapper.database = "lotus-mongodb"
+MongoMapper.setup({
+  'default' => {
+    'database' => ENV['MONGOHQ_DATABASE'] ||
+                  ENV['MONGODB_DATABASE'] ||
+                  'lotus-mongodb',
+    'uri'      => ENV['MONGOHQ_URL'] ||
+                  ENV['MONGODB_URI'] ||
+                  ENV['MONGOLAB_URI']
+  }
+}, 'default')
 
 require "lotus-mongodb/embedded_object"
 require "lotus-mongodb/object"
