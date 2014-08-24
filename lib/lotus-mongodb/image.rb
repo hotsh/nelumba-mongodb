@@ -12,8 +12,7 @@ module Lotus
 
     # Create a new Image from the given blob
     def self.from_blob!(author, blob, options = {})
-      image = self.new(:author_id => author.id,
-                       :sizes     => options[:sizes])
+      image = self.new({:author_id => author.id}.merge(options))
 
       canvas = Magick::ImageList.new
       canvas.from_blob(blob)
