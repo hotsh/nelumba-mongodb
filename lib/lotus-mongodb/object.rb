@@ -22,6 +22,9 @@ module Lotus
         key :content
         key :image
 
+        key :text
+        key :html
+
         # Automated Timestamps
         key :published, Time
         key :updated,   Time
