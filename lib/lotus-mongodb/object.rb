@@ -2,11 +2,13 @@ module Lotus
   module Object
     def self.included(klass)
       klass.class_eval do
-        def initialize(*args)
-          super(*args)
-        end
-
         include MongoMapper::Document
+
+        def initialize(*args, &blk)
+          init(*args, &blk)
+
+          super(*args, &blk)
+        end
 
         # Ensure writes happen (lol mongo defaults)
         safe
