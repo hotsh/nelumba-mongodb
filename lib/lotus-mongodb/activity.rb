@@ -65,6 +65,9 @@ module Lotus
     remove_method :likes
     many :likes, :in => :likes_ids, :class_name => 'Lotus::Person'
 
+    # Hash containing various interaction metadata
+    key :interactions
+
     # Ensure that url and uid for the activity are set
     before_create :ensure_uid_and_url
 
