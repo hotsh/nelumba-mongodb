@@ -891,48 +891,6 @@ describe Nelumba::Person do
     end
   end
 
-  describe "#short_name" do
-    it "should use display_name over all else" do
-      author = Nelumba::Person.create(:display_name => "display",
-                             :name => "name",
-                             :preferred_username => "preferred",
-                             :nickname => "nickname",
-                             :uid => "unique")
-
-      author.short_name.must_equal "display"
-    end
-
-    it "should use name over all else when display name doesn't exist" do
-      author = Nelumba::Person.create(:name => "name",
-                             :preferred_username => "preferred",
-                             :nickname => "nickname",
-                             :uid => "unique")
-
-      author.short_name.must_equal "name"
-    end
-
-    it "should use preferred_username when name and display_name don't exist" do
-      author = Nelumba::Person.create(:preferred_username => "preferred",
-                             :nickname => "nickname",
-                             :uid => "unique")
-
-      author.short_name.must_equal "preferred"
-    end
-
-    it "should use nickname when it exists and others do not" do
-      author = Nelumba::Person.create(:nickname => "nickname",
-                             :uid => "unique")
-
-      author.short_name.must_equal "nickname"
-    end
-
-    it "should use uid when all else fails" do
-      author = Nelumba::Person.create(:uid => "unique")
-
-      author.short_name.must_equal "unique"
-    end
-  end
-
   describe "#update_avatar!" do
     it "should pass through the url to Avatar.from_url!" do
       Nelumba::Avatar.expects(:from_url!).with(anything, "avatar_url", anything)

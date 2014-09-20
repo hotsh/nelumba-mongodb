@@ -145,9 +145,9 @@ module Nelumba
     # Create a new local Person
     def self.new_local(username, domain, ssl)
       person = Nelumba::Person.new(:nickname => username,
-                                 :name => username,
-                                 :display_name => username,
-                                 :preferred_username => username)
+                                   :name => username,
+                                   :display_name => username,
+                                   :preferred_username => username)
 
       # Create url and uid for local Person
       person.url =
@@ -411,21 +411,6 @@ module Nelumba
 
     def local?
       !self.authorization.nil?
-    end
-
-    # Determines the name to use to refer to this Person in a view.
-    def short_name
-      if self.display_name
-        self.display_name
-      elsif self.name
-        self.name
-      elsif self.preferred_username
-        self.preferred_username
-      elsif self.nickname
-        self.nickname
-      else
-        self.uid
-      end
     end
 
     def self.sanitize_params(params)
