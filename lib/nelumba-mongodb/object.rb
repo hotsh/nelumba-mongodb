@@ -1,8 +1,8 @@
-module Lotus
-  module EmbeddedObject
+module Nelumba
+  module Object
     def self.included(klass)
       klass.class_eval do
-        include MongoMapper::EmbeddedDocument
+        include MongoMapper::Document
 
         def initialize(*args, &blk)
           init(*args, &blk)
@@ -10,7 +10,10 @@ module Lotus
           super(*args, &blk)
         end
 
-        belongs_to :author, :class_name => 'Lotus::Person'
+        # Ensure writes happen (lol mongo defaults)
+        safe
+
+        belongs_to :author, :class_name => 'Nelumba::Person'
         key :author_id, ObjectId
 
         key :title
@@ -20,6 +23,9 @@ module Lotus
         key :summary
         key :content
         key :image
+
+        key :text
+        key :html
 
         # Automated Timestamps
         key :published, Time
@@ -31,12 +37,6 @@ module Lotus
           self[:published] ||= now if !persisted?
           self[:updated]     = now
         end
-
-        def self.find_by_id(id)
-          Lotus::Activity.object_by_id_and_type(id, self)
-        end
-
-        embedded_in :'Lotus::Activity'
       end
     end
   end

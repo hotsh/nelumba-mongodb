@@ -1,6 +1,6 @@
-module Lotus
+module Nelumba
   class Comment
-    include Lotus::EmbeddedObject
+    include Nelumba::EmbeddedObject
 
     key :in_reply_to, :default => []
   end

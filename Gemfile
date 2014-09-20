@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in lotus-mongodb.gemspec
+# Specify your gem's dependencies in nelumba-mongodb.gemspec
 gemspec
 
 gem "redfinger", :git => "git://github.com/hotsh/redfinger.git"
-gem 'lotus', :git => 'git://github.com/hotsh/lotus.git'
+gem 'nelumba', :git => 'git://github.com/hotsh/nelumba.git'
 
 group :test do
   gem "rake"              # rakefile

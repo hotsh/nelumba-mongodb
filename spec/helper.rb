@@ -10,7 +10,7 @@ require "debugger"
 
 require 'mongo_mapper'
 
-require 'lotus'
+require 'nelumba'
 
 module ActiveSupport::Callbacks::ClassMethods
   def callbacks
@@ -58,10 +58,10 @@ module MongoMapper::Plugins::Associations::ClassMethods
   end
 end
 
-require_relative '../lib/lotus-mongodb.rb'
+require_relative '../lib/nelumba-mongodb.rb'
 
 MongoMapper.connection = Mongo::Connection.new('localhost')
-MongoMapper.database = "lotus-test"
+MongoMapper.database = "nelumba-test"
 
 class MiniTest::Unit::TestCase
   def teardown

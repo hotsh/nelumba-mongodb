@@ -1,4 +1,4 @@
-module Lotus
+module Nelumba
   class Feed
     def initialize(*args); super(*args); end
 
@@ -15,7 +15,7 @@ module Lotus
 
     # Feeds generally belong to a person.
     key :person_id, ObjectId
-    belongs_to :person, :class_name => 'Lotus::Person'
+    belongs_to :person, :class_name => 'Nelumba::Person'
 
     remove_method :categories
     key :categories,   :default => []
@@ -38,16 +38,16 @@ module Lotus
     # An array of Persons that contributed to this Feed.
     key  :contributors_ids, Array, :default => []
     remove_method :contributors
-    many :contributors,     :class_name => 'Lotus::Person', :in => :contributors_ids
+    many :contributors,     :class_name => 'Nelumba::Person', :in => :contributors_ids
 
     # An Array of Persons that create the content in this Feed.
     key  :authors_ids,  Array, :default => []
     remove_method :authors
-    many :authors,      :class_name => 'Lotus::Person', :in => :authors_ids
+    many :authors,      :class_name => 'Nelumba::Person', :in => :authors_ids
 
     # An Array of Activities that are contained in this Feed.
     key :items_ids,  Array
-    many :items,     :class_name => 'Lotus::Activity',
+    many :items,     :class_name => 'Nelumba::Activity',
                      :in         => :items_ids,
                      :order      => :published.desc
 
@@ -77,24 +77,24 @@ module Lotus
 
     # The external feeds being aggregated.
     key  :following_ids, Array
-    many :following,     :in => :following_ids, :class_name => 'Lotus::Feed'
+    many :following,     :in => :following_ids, :class_name => 'Nelumba::Feed'
 
     # Who is aggregating this feed.
     key  :followers_ids, Array
-    many :followers,     :in => :followers_ids, :class_name => 'Lotus::Feed'
+    many :followers,     :in => :followers_ids, :class_name => 'Nelumba::Feed'
 
     # Subscription status.
     # Since subscriptions are done by the server, we only need to share one
     # secret/token pair for all users that follow this feed on the server.
     # This is done at the Feed level since people may want to follow your
-    # "timeline", or your "favorites". Or People who use Lotus will ignore
+    # "timeline", or your "favorites". Or People who use Nelumba will ignore
     # the Person aggregate class and go with their own thing.
     key :subscription_secret
     key :verification_token
 
     # Create a new Feed if the given Feed is not found by its id.
     def self.find_or_create_by_uid!(arg, *args)
-      if arg.is_a? Lotus::Feed
+      if arg.is_a? Nelumba::Feed
         uid = arg.uid
       else
         uid = arg[:uid]
@@ -112,21 +112,21 @@ module Lotus
       feed
     end
 
-    # Create a new Feed from a Hash of values or a Lotus::Feed.
+    # Create a new Feed from a Hash of values or a Nelumba::Feed.
     def initialize(*args)
       hash = {}
       if args.length > 0
         hash = args.shift
       end
 
-      if hash.is_a? Lotus::Feed
+      if hash.is_a? Nelumba::Feed
         hash = hash.to_hash
       end
 
       if hash[:authors].is_a? Array
         hash[:authors].map! do |author|
           if author.is_a? Hash
-            author = Lotus::Person.find_or_create_by_uid!(author)
+            author = Nelumba::Person.find_or_create_by_uid!(author)
           end
           author
         end
@@ -135,7 +135,7 @@ module Lotus
       if hash[:contributors].is_a? Array
         hash[:contributors].map! do |contributor|
           if contributor.is_a? Hash
-            contributor = Lotus::Person.find_or_create_by_uid!(contributor)
+            contributor = Nelumba::Person.find_or_create_by_uid!(contributor)
           end
           contributor
         end
@@ -144,7 +144,7 @@ module Lotus
       if hash[:items].is_a? Array
         hash[:items].map! do |item|
           if item.is_a? Hash
-            item = Lotus::Activity.find_or_create_by_uid!(item)
+            item = Nelumba::Activity.find_or_create_by_uid!(item)
           end
           item
         end
@@ -158,7 +158,7 @@ module Lotus
       feed = Feed.first(:url => feed_identifier)
       return feed if feed
 
-      feed = Lotus.discover_feed(feed_identifier)
+      feed = Nelumba.discover_feed(feed_identifier)
       return false unless feed
 
       existing_feed = Feed.first(:uid => feed.uid)
@@ -192,7 +192,7 @@ module Lotus
 
     # Retrieve the feed's activities with the most recent first.
     def ordered
-      Lotus::Activity.where(:id => self.items_ids).order(:published => :desc)
+      Nelumba::Activity.where(:id => self.items_ids).order(:published => :desc)
     end
 
     # Follow the given feed. When a new post is placed in this feed, it
@@ -227,7 +227,7 @@ module Lotus
     def post!(activity)
       if activity.is_a?(Hash)
         # Create a new activity
-        activity = Lotus::Activity.create!(activity)
+        activity = Nelumba::Activity.create!(activity)
       end
 
       activity.feed_id = self.id

@@ -1,4 +1,4 @@
-module Lotus
+module Nelumba
   # This represents the information necessary to talk to an Person that is
   # external to our node, or it represents how to talk to us.
   # An Identity stores endpoints that are used to push or pull Activities from.
@@ -13,7 +13,7 @@ module Lotus
     # public keys are good for 4 weeks
     PUBLIC_KEY_LEASE_DAYS = 28
 
-    belongs_to :person, :class_name => 'Lotus::Person'
+    belongs_to :person, :class_name => 'Nelumba::Person'
     key :person_id, ObjectId
 
     key :username
@@ -34,10 +34,10 @@ module Lotus
     key :profile_page
 
     key :outbox_id, ObjectId
-    belongs_to :outbox, :class_name => 'Lotus::Feed'
+    belongs_to :outbox, :class_name => 'Nelumba::Feed'
 
     key :inbox_id, ObjectId
-    belongs_to :inbox, :class_name => 'Lotus::Feed'
+    belongs_to :inbox, :class_name => 'Nelumba::Feed'
 
     timestamps!
 
@@ -65,7 +65,7 @@ module Lotus
       if self.public_key_lease.nil? or
          self.public_key_lease < DateTime.now.to_date
         # Lease has expired, get the public key again
-        identity = Lotus.discover_identity("acct:#{self.username}@#{self.domain}")
+        identity = Nelumba.discover_identity("acct:#{self.username}@#{self.domain}")
 
         self.public_key = identity.public_key
         reset_key_lease
@@ -77,7 +77,7 @@ module Lotus
     end
 
     def self.new_local(person, username, domain, ssl, public_key)
-      Lotus::Identity.new(
+      Nelumba::Identity.new(
         :username => username,
         :domain => domain,
         :ssl => ssl,
@@ -99,11 +99,11 @@ module Lotus
       username = matches[1].downcase
       domain   = matches[2].downcase
 
-      Lotus::Identity.first(:username => username,
+      Nelumba::Identity.first(:username => username,
                             :domain => domain)
     end
 
-    # Create a new Identity from a Hash of values or a Lotus::Identity.
+    # Create a new Identity from a Hash of values or a Nelumba::Identity.
     # TODO: Create outbox and inbox aggregates to hold feed and sent activities
     def self.create!(*args)
       hash = {}
@@ -111,7 +111,7 @@ module Lotus
         hash = args.shift
       end
 
-      if hash.is_a? Lotus::Identity
+      if hash.is_a? Nelumba::Identity
         hash = hash.to_hash
       end
 
@@ -128,7 +128,7 @@ module Lotus
       super hash, *args
     end
 
-    # Create a new Identity from a Hash of values or a Lotus::Identity.
+    # Create a new Identity from a Hash of values or a Nelumba::Identity.
     def self.create(*args)
       self.create! *args
     end
@@ -163,10 +163,10 @@ module Lotus
 
     # Discover an identity from the given user identifier.
     def self.discover!(account)
-      identity = Lotus::Identity.find_by_identifier(account)
+      identity = Nelumba::Identity.find_by_identifier(account)
       return identity if identity
 
-      identity = Lotus.discover_identity(account)
+      identity = Nelumba.discover_identity(account)
       return false unless identity
 
       self.create!(identity)

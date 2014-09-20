@@ -1,4 +1,4 @@
-module Lotus
+module Nelumba
   # Represents a typical social experience. This contains a feed of our
   # contributions, our consumable feed (timeline), our list of favorites,
   # a list of things that mention us and replies to us. It keeps track of
@@ -12,45 +12,45 @@ module Lotus
     safe
 
     # Every Person has a representation of their central Identity.
-    one :identity, :class_name => 'Lotus::Identity'
+    one :identity, :class_name => 'Nelumba::Identity'
 
     # A Person MAY have an Authorization, if they are local
-    one :authorization, :class_name => 'Lotus::Authorization'
+    one :authorization, :class_name => 'Nelumba::Authorization'
 
     # Each Person has an Avatar icon that identifies them.
-    one :avatar, :class_name => 'Lotus::Avatar'
+    one :avatar, :class_name => 'Nelumba::Avatar'
 
     # Our contributions.
     key :activities_id,     ObjectId
-    belongs_to :activities, :class_name => 'Lotus::Feed'
+    belongs_to :activities, :class_name => 'Nelumba::Feed'
 
     # The combined contributions of ourself and others we follow.
     key :timeline_id,     ObjectId
-    belongs_to :timeline, :class_name => 'Lotus::Feed'
+    belongs_to :timeline, :class_name => 'Nelumba::Feed'
 
     # The things we like.
     key :favorites_id,     ObjectId
-    belongs_to :favorites, :class_name => 'Lotus::Feed'
+    belongs_to :favorites, :class_name => 'Nelumba::Feed'
 
     # The things we shared.
     key :shared_id,     ObjectId
-    belongs_to :shared, :class_name => 'Lotus::Feed'
+    belongs_to :shared, :class_name => 'Nelumba::Feed'
 
     # Replies to our stuff.
     key :replies_id,     ObjectId
-    belongs_to :replies, :class_name => 'Lotus::Feed'
+    belongs_to :replies, :class_name => 'Nelumba::Feed'
 
     # Stuff that mentions us.
     key :mentions_id,     ObjectId
-    belongs_to :mentions, :class_name => 'Lotus::Feed'
+    belongs_to :mentions, :class_name => 'Nelumba::Feed'
 
     # The people that follow us.
     key  :following_ids, Array
-    many :following,     :in => :following_ids, :class_name => 'Lotus::Person'
+    many :following,     :in => :following_ids, :class_name => 'Nelumba::Person'
 
     # Who is aggregating this feed.
     key  :followers_ids, Array
-    many :followers,     :in => :followers_ids, :class_name => 'Lotus::Person'
+    many :followers,     :in => :followers_ids, :class_name => 'Nelumba::Person'
 
     # A unique identifier for this author.
     key :uid
@@ -144,7 +144,7 @@ module Lotus
 
     # Create a new local Person
     def self.new_local(username, domain, ssl)
-      person = Lotus::Person.new(:nickname => username,
+      person = Nelumba::Person.new(:nickname => username,
                                  :name => username,
                                  :display_name => username,
                                  :preferred_username => username)
@@ -155,27 +155,27 @@ module Lotus
       person.uid = person.url
 
       # Create feeds for local Person
-      person.activities = Lotus::Feed.new(:person_id => person.id,
+      person.activities = Nelumba::Feed.new(:person_id => person.id,
                                           :authors   => [person])
       person.activities_id = person.activities.id
 
-      person.timeline   = Lotus::Feed.new(:person_id => person.id,
+      person.timeline   = Nelumba::Feed.new(:person_id => person.id,
                                           :authors   => [person])
       person.timeline_id = person.timeline.id
 
-      person.shared     = Lotus::Feed.new(:person_id => person.id,
+      person.shared     = Nelumba::Feed.new(:person_id => person.id,
                                           :authors   => [person])
       person.shared_id = person.shared.id
 
-      person.favorites  = Lotus::Feed.new(:person_id => person.id,
+      person.favorites  = Nelumba::Feed.new(:person_id => person.id,
                                           :authors   => [person])
       person.favorites_id = person.favorites.id
 
-      person.replies    = Lotus::Feed.new(:person_id => person.id,
+      person.replies    = Nelumba::Feed.new(:person_id => person.id,
                                           :authors   => [person])
       person.replies_id = person.replies.id
 
-      person.mentions   = Lotus::Feed.new(:person_id => person.id,
+      person.mentions   = Nelumba::Feed.new(:person_id => person.id,
                                           :authors   => [person])
       person.mentions_id = person.mentions.id
 
@@ -184,7 +184,7 @@ module Lotus
 
     # Create a new Person if the given Person is not found by its id.
     def self.find_or_create_by_uid!(arg, *args)
-      if arg.is_a? Lotus::Person
+      if arg.is_a? Nelumba::Person
         uid = arg.uid
 
         arg = arg.to_hash
@@ -206,7 +206,7 @@ module Lotus
 
     # Updates so that we now follow the given Person.
     def follow!(author)
-      if author.is_a? Lotus::Identity
+      if author.is_a? Nelumba::Identity
         author = author.person
       end
 
@@ -232,7 +232,7 @@ module Lotus
 
     # Updates so that we do not follow the given Person.
     def unfollow!(author)
-      if author.is_a? Lotus::Identity
+      if author.is_a? Nelumba::Identity
         author = author.person
       end
 
@@ -257,7 +257,7 @@ module Lotus
     end
 
     def follow?(author)
-      if author.is_a? Lotus::Identity
+      if author.is_a? Nelumba::Identity
         author = author.person
       end
 
@@ -266,7 +266,7 @@ module Lotus
 
     # Updates to show we are now followed by the given Person.
     def followed_by!(author)
-      if author.is_a? Lotus::Identity
+      if author.is_a? Nelumba::Identity
         author = author.person
       end
 
@@ -282,7 +282,7 @@ module Lotus
 
     # Updates to show we are not followed by the given Person.
     def unfollowed_by!(author)
-      if author.is_a? Lotus::Identity
+      if author.is_a? Nelumba::Identity
         author = author.person
       end
 
@@ -366,14 +366,14 @@ module Lotus
     # This goes in our timeline.
     def deliver!(activity)
       # Determine the original feed as duplicate it in our timeline
-      author = Lotus::Person.find(:id => activity.author.id)
+      author = Nelumba::Person.find(:id => activity.author.id)
 
       # Do not deliver if we do not follow the Person
       return false if author.nil?
       return false unless followings.include?(author)
 
       # We should know how to talk back to this person
-      identity = Lotus::Identity.find_by_author(author)
+      identity = Nelumba::Identity.find_by_author(author)
       return false if identity.nil?
 
       # Add to author's outbox feed
@@ -402,7 +402,7 @@ module Lotus
 
     # Updates our avatar with the given url.
     def update_avatar!(url)
-      Lotus::Avatar.from_url!(self, url, :sizes => [[48, 48]])
+      Nelumba::Avatar.from_url!(self, url, :sizes => [[48, 48]])
     end
 
     def remote?
@@ -507,21 +507,21 @@ module Lotus
 
     # Discover and populate the associated activity feed for this author.
     def discover_feed!
-      Lotus.discover_feed(self.identity)
+      Nelumba.discover_feed(self.identity)
     end
 
     # Discover an Person by the given feed location or account.
     def self.discover!(author_identifier)
       # Did we already discover this Person?
-      identity = Lotus::Identity.find_by_identifier(author_identifier)
+      identity = Nelumba::Identity.find_by_identifier(author_identifier)
       return identity.person if identity
 
       # Discover the Identity
-      identity = Lotus.discover_identity(author_identifier)
+      identity = Nelumba.discover_identity(author_identifier)
       return nil unless identity
 
       # Use their Identity to discover their feed and their Person
-      feed = Lotus.discover_feed(identity)
+      feed = Nelumba.discover_feed(identity)
       return nil unless feed
 
       feed.save
@@ -529,7 +529,7 @@ module Lotus
       identity = identity.to_hash.merge(:outbox => feed,
                                         :person_id => feed.authors.first.id)
 
-      identity = Lotus::Identity.create!(identity)
+      identity = Nelumba::Identity.create!(identity)
       identity.person
     end
 

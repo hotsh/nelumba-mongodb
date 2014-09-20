@@ -1,28 +1,34 @@
-module Lotus
-  class Image
+module Nelumba
+  class Avatar
     require 'RMagick'
 
-    include Lotus::EmbeddedObject
+    include MongoMapper::Document
 
-    # The array of sizes this image has stored.
+    # The avatar belongs to a particular Person
+    key :author_id, ObjectId
+    belongs_to :author, :class_name => 'Nelumba::Person'
+
+    # The array of sizes this avatar has stored.
     key :sizes, Array, :default => []
 
     # The content type for the image.
     key :content_type
 
-    # Create a new Image from the given blob
+    # Log modification.
+    timestamps!
+
+    # Create a new Avatar from the given blob
     def self.from_blob!(author, blob, options = {})
-      image = self.new({:author_id => author.id}.merge(options))
+      avatar = Avatar.new(:author_id => author.id,
+                          :sizes     => options[:sizes])
 
-      canvas = Magick::ImageList.new
-      canvas.from_blob(blob)
-
-      self.storage_write "full_image_#{image.id}", blob
+      image = Magick::ImageList.new
+      image.from_blob(blob)
 
       # Store the content_type
-      image.content_type = canvas.mime_type
+      avatar.content_type = image.mime_type
 
-      # Resize the canvass to fit the given sizes (crop to the aspect ratio)
+      # Resize the images to fit the given sizes (crop to the aspect ratio)
       # And store them in the storage backend.
       options[:sizes] ||= []
       images = options[:sizes].each do |size|
@@ -30,48 +36,51 @@ module Lotus
         height = size[1]
 
         # Resize to maintain aspect ratio
-        resized = canvas.resize_to_fill(width, height)
-        self.storage_write "image_#{image.id}_#{width}x#{height}", resized.to_blob
+        resized = image.resize_to_fill(width, height)
+        self.storage_write "avatar_#{avatar.id}_#{width}x#{height}", resized.to_blob
       end
 
-      image.url = "/images/#{image.id}"
-      image.uid = image.url
+      # Find old avatar
+      old = Avatar.first(:author_id => author.id)
+      if old
+        old.destroy
+      end
 
-      image.save
-      image
+      avatar.save
+      avatar
     end
 
     # Create a new Avatar from the given url
     def self.from_url!(author, url, options = {})
-      # Pull canvas down
+      # Pull image down
       response = self.pull_url(url, options[:content_type])
       return nil unless response.kind_of? Net::HTTPSuccess
 
       self.from_blob!(author, response.body, options)
     end
 
-    def image(size = nil)
+    def url(size = nil)
       return nil if self.sizes.empty?
 
       size = self.sizes.first unless size
       return nil unless self.sizes.include? size
 
-      Lotus::Image.storage_read "image_#{self.id}_#{size[0]}x#{size[1]}"
+      "/avatars/#{self.id}/#{size[0]}x#{size[1]}"
     end
 
-    def full_image
-      Lotus::Image.storage_read "full_image_#{self.id}"
+    # Retrieve the avatar image as a byte string.
+    def read(size = nil)
+      return nil if self.sizes.empty?
+
+      size = self.sizes.first unless size
+      return nil unless self.sizes.include? size
+
+      Avatar.storage_read "avatar_#{self.id}_#{size[0]}x#{size[1]}"
     end
 
-    def image_base64(size = nil)
-      data = self.image(size)
-      return nil unless data
-
-      "data:#{self.content_type};base64,#{Base64.encode64(data)}"
-    end
-
-    def full_image_base64
-      data = self.full_image
+    # Yield a base64 string encoded with the content type
+    def read_base64(size = nil)
+      data = self.read(size)
       return nil unless data
 
       "data:#{self.content_type};base64,#{Base64.encode64(data)}"

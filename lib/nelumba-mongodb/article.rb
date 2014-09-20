@@ -1,8 +1,8 @@
-module Lotus
+module Nelumba
   class Article
     require 'redcarpet'
 
-    include Lotus::EmbeddedObject
+    include Nelumba::EmbeddedObject
 
     key :markdown
 

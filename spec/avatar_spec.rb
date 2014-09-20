@@ -15,34 +15,34 @@ end
 
 module Base64; end
 
-describe Lotus::Avatar do
+describe Nelumba::Avatar do
   before do
-    Lotus::Avatar.class_variable_set :@@grid, nil
+    Nelumba::Avatar.class_variable_set :@@grid, nil
   end
 
   describe "Schema" do
     it "should have an author_id" do
-      Lotus::Avatar.keys.keys.must_include "author_id"
+      Nelumba::Avatar.keys.keys.must_include "author_id"
     end
 
     it "should have a sizes array" do
-      Lotus::Avatar.keys.keys.must_include "sizes"
+      Nelumba::Avatar.keys.keys.must_include "sizes"
     end
 
     it "should has a default sizes array of []" do
-      Lotus::Avatar.new.sizes.must_equal []
+      Nelumba::Avatar.new.sizes.must_equal []
     end
 
     it "should have a content_type" do
-      Lotus::Avatar.keys.keys.must_include "content_type"
+      Nelumba::Avatar.keys.keys.must_include "content_type"
     end
 
     it "should have a created_at" do
-      Lotus::Avatar.keys.keys.must_include "created_at"
+      Nelumba::Avatar.keys.keys.must_include "created_at"
     end
 
     it "should have a updated_at" do
-      Lotus::Avatar.keys.keys.must_include "updated_at"
+      Nelumba::Avatar.keys.keys.must_include "updated_at"
     end
   end
 
@@ -53,7 +53,7 @@ describe Lotus::Avatar do
       uri.stubs(:hostname)
       uri.stubs(:port)
       uri.stubs(:scheme)
-      Lotus::Avatar.stubs(:URI).returns(uri)
+      Nelumba::Avatar.stubs(:URI).returns(uri)
 
       request = stub('Net::HTTP::Request')
       Net::HTTP::Get.stubs(:new).returns(request)
@@ -70,8 +70,8 @@ describe Lotus::Avatar do
 
       Magick::ImageList.stubs(:new)
 
-      author = Lotus::Person.create
-      Lotus::Avatar.from_url!(author, "bogus").must_equal nil
+      author = Nelumba::Person.create
+      Nelumba::Avatar.from_url!(author, "bogus").must_equal nil
     end
 
     it "should destroy any previous avatar" do
@@ -80,7 +80,7 @@ describe Lotus::Avatar do
       uri.stubs(:hostname)
       uri.stubs(:port)
       uri.stubs(:scheme).returns("https")
-      Lotus::Avatar.stubs(:URI).with("valid").returns(uri)
+      Nelumba::Avatar.stubs(:URI).with("valid").returns(uri)
 
       request = stub('Net::HTTP::Request')
       Net::HTTP::Get.stubs(:new).returns(request)
@@ -103,7 +103,7 @@ describe Lotus::Avatar do
       image.stubs(:resize_to_fill).with(48, 48).returns(new_image)
       Magick::ImageList.stubs(:new).returns(image)
 
-      author = Lotus::Person.create
+      author = Nelumba::Person.create
 
       io = stub('IO')
       io.stubs(:put)
@@ -116,15 +116,15 @@ describe Lotus::Avatar do
       avatar.stubs(:content_type=)
       avatar.stubs(:save)
       avatar.stubs(:_id).returns("ID")
-      Lotus::Avatar.stubs(:new).returns(avatar)
+      Nelumba::Avatar.stubs(:new).returns(avatar)
 
       gridfs.stubs(:put).with("NEW IMAGE", :_id => "avatar_ID_48x48")
 
-      old = Lotus::Avatar.new
-      Lotus::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(old)
+      old = Nelumba::Avatar.new
+      Nelumba::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(old)
       old.expects(:destroy)
 
-      Lotus::Avatar.from_url!(author, "valid", :sizes => [[48, 48]])
+      Nelumba::Avatar.from_url!(author, "valid", :sizes => [[48, 48]])
     end
 
     it "should use ssl and verify when given" do
@@ -133,7 +133,7 @@ describe Lotus::Avatar do
       uri.stubs(:hostname)
       uri.stubs(:port)
       uri.stubs(:scheme).returns("https")
-      Lotus::Avatar.stubs(:URI).with("valid").returns(uri)
+      Nelumba::Avatar.stubs(:URI).with("valid").returns(uri)
 
       request = stub('Net::HTTP::Request')
       Net::HTTP::Get.stubs(:new).returns(request)
@@ -147,12 +147,12 @@ describe Lotus::Avatar do
 
       Magick::ImageList.stubs(:new)
 
-      author = Lotus::Person.create
-      Lotus::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
+      author = Nelumba::Person.create
+      Nelumba::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
 
       http.expects(:use_ssl=).with(true)
       http.expects(:verify_mode=).with(OpenSSL::SSL::VERIFY_PEER)
-      Lotus::Avatar.from_url!(author, "valid")
+      Nelumba::Avatar.from_url!(author, "valid")
     end
 
     it "should query ImageMagick for the content type" do
@@ -161,7 +161,7 @@ describe Lotus::Avatar do
       uri.stubs(:hostname)
       uri.stubs(:port)
       uri.stubs(:scheme).returns("https")
-      Lotus::Avatar.stubs(:URI).with("valid").returns(uri)
+      Nelumba::Avatar.stubs(:URI).with("valid").returns(uri)
 
       request = stub('Net::HTTP::Request')
       Net::HTTP::Get.stubs(:new).returns(request)
@@ -180,11 +180,11 @@ describe Lotus::Avatar do
       image.stubs(:mime_type).returns("MIME")
       Magick::ImageList.stubs(:new).returns(image)
 
-      author = Lotus::Person.create
+      author = Nelumba::Person.create
 
-      Lotus::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
+      Nelumba::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
 
-      Lotus::Avatar.from_url!(author, "valid").content_type.must_equal "MIME"
+      Nelumba::Avatar.from_url!(author, "valid").content_type.must_equal "MIME"
     end
 
     it "should query ImageMagick to resize and fill to the given sizes" do
@@ -193,7 +193,7 @@ describe Lotus::Avatar do
       uri.stubs(:hostname)
       uri.stubs(:port)
       uri.stubs(:scheme).returns("https")
-      Lotus::Avatar.stubs(:URI).with("valid").returns(uri)
+      Nelumba::Avatar.stubs(:URI).with("valid").returns(uri)
 
       request = stub('Net::HTTP::Request')
       Net::HTTP::Get.stubs(:new).returns(request)
@@ -212,7 +212,7 @@ describe Lotus::Avatar do
       image.stubs(:mime_type).returns("MIME")
       Magick::ImageList.stubs(:new).returns(image)
 
-      author = Lotus::Person.create
+      author = Nelumba::Person.create
 
       io = stub('IO')
       io.stubs(:put)
@@ -226,9 +226,9 @@ describe Lotus::Avatar do
 
       image.expects(:resize_to_fill).with(48, 48).returns(new_image)
 
-      Lotus::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
+      Nelumba::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
 
-      Lotus::Avatar.from_url!(author, "valid", :sizes => [[48, 48]])
+      Nelumba::Avatar.from_url!(author, "valid", :sizes => [[48, 48]])
     end
 
     it "should store the resultant image to GridFS" do
@@ -237,7 +237,7 @@ describe Lotus::Avatar do
       uri.stubs(:hostname)
       uri.stubs(:port)
       uri.stubs(:scheme).returns("https")
-      Lotus::Avatar.stubs(:URI).with("valid").returns(uri)
+      Nelumba::Avatar.stubs(:URI).with("valid").returns(uri)
 
       request = stub('Net::HTTP::Request')
       Net::HTTP::Get.stubs(:new).returns(request)
@@ -260,7 +260,7 @@ describe Lotus::Avatar do
       image.stubs(:resize_to_fill).with(48, 48).returns(new_image)
       Magick::ImageList.stubs(:new).returns(image)
 
-      author = Lotus::Person.create
+      author = Nelumba::Person.create
 
       io = stub('IO')
       io.stubs(:put)
@@ -273,42 +273,42 @@ describe Lotus::Avatar do
       avatar.stubs(:content_type=)
       avatar.stubs(:save)
       avatar.stubs(:_id).returns("ID")
-      Lotus::Avatar.stubs(:new).returns(avatar)
+      Nelumba::Avatar.stubs(:new).returns(avatar)
 
-      Lotus::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
+      Nelumba::Avatar.stubs(:first).with(has_entry(:author_id => author.id)).returns(nil)
 
       gridfs.expects(:put).with("NEW IMAGE", :_id => "avatar_ID_48x48")
-      Lotus::Avatar.from_url!(author, "valid", :sizes => [[48, 48]])
+      Nelumba::Avatar.from_url!(author, "valid", :sizes => [[48, 48]])
     end
   end
 
   describe "#url" do
     it "should return a url crafted from the given size" do
-      avatar = Lotus::Avatar.create(:sizes => [[48, 48]])
+      avatar = Nelumba::Avatar.create(:sizes => [[48, 48]])
 
       avatar.url([48, 48]).must_equal "/avatars/#{avatar.id}/48x48"
     end
 
     it "should return nil if the given size doesn't exist" do
-      avatar = Lotus::Avatar.create(:sizes => [[50, 50]])
+      avatar = Nelumba::Avatar.create(:sizes => [[50, 50]])
 
       avatar.url([48, 48]).must_equal nil
     end
 
     it "should return nil when no sizes exist" do
-      avatar = Lotus::Avatar.create
+      avatar = Nelumba::Avatar.create
 
       avatar.url([48, 48]).must_equal nil
     end
 
     it "should return nil when no sizes exist and none where given" do
-      avatar = Lotus::Avatar.create
+      avatar = Nelumba::Avatar.create
 
       avatar.url.must_equal nil
     end
 
     it "should return first size given upon creation when none where given" do
-      avatar = Lotus::Avatar.create(:sizes => [[48, 48], [64, 64]])
+      avatar = Nelumba::Avatar.create(:sizes => [[48, 48], [64, 64]])
 
       avatar.url([48, 48]).must_equal "/avatars/#{avatar.id}/48x48"
     end
@@ -316,7 +316,7 @@ describe Lotus::Avatar do
 
   describe "#read" do
     it "should call out to GridFS with the correct id" do
-      avatar = Lotus::Avatar.create(:sizes => [[48, 48]])
+      avatar = Nelumba::Avatar.create(:sizes => [[48, 48]])
 
       io = stub('IO')
       io.stubs(:read).returns("bytes")
@@ -330,7 +330,7 @@ describe Lotus::Avatar do
     end
 
     it "should call out to GridFS with the correct id when size is given" do
-      avatar = Lotus::Avatar.create(:sizes => [[48, 48]])
+      avatar = Nelumba::Avatar.create(:sizes => [[48, 48]])
 
       io = stub('IO')
       io.stubs(:read).returns("bytes")
@@ -344,19 +344,19 @@ describe Lotus::Avatar do
     end
 
     it "should return nil when no sizes exist and no size is given" do
-      avatar = Lotus::Avatar.create
+      avatar = Nelumba::Avatar.create
 
       avatar.read([48, 48]).must_equal nil
     end
 
     it "should return nil when no sizes exist and size is given" do
-      avatar = Lotus::Avatar.create
+      avatar = Nelumba::Avatar.create
 
       avatar.read([48, 48]).must_equal nil
     end
 
     it "should return nil when sizes exist but wrong size is given" do
-      avatar = Lotus::Avatar.create(:sizes => [[48, 48]])
+      avatar = Nelumba::Avatar.create(:sizes => [[48, 48]])
 
       avatar.read([64, 64]).must_equal nil
     end
@@ -368,7 +368,7 @@ describe Lotus::Avatar do
     end
 
     it "should call out to GridFS with the correct id" do
-      avatar = Lotus::Avatar.create(:sizes => [[48, 48]],
+      avatar = Nelumba::Avatar.create(:sizes => [[48, 48]],
                              :content_type => "mime")
 
       io = stub('IO')
@@ -383,7 +383,7 @@ describe Lotus::Avatar do
     end
 
     it "should call out to GridFS with the correct id when size is given" do
-      avatar = Lotus::Avatar.create(:sizes => [[48, 48]],
+      avatar = Nelumba::Avatar.create(:sizes => [[48, 48]],
                              :content_type => "mime")
 
       io = stub('IO')
@@ -398,19 +398,19 @@ describe Lotus::Avatar do
     end
 
     it "should return nil when no sizes exist and no size is given" do
-      avatar = Lotus::Avatar.create
+      avatar = Nelumba::Avatar.create
 
       avatar.read_base64([48, 48]).must_equal nil
     end
 
     it "should return nil when no sizes exist and size is given" do
-      avatar = Lotus::Avatar.create(:content_type => "mime")
+      avatar = Nelumba::Avatar.create(:content_type => "mime")
 
       avatar.read_base64([48, 48]).must_equal nil
     end
 
     it "should return nil when sizes exist but wrong size is given" do
-      avatar = Lotus::Avatar.create(:content_type => "mime")
+      avatar = Nelumba::Avatar.create(:content_type => "mime")
 
       avatar.read_base64([64, 64]).must_equal nil
     end

@@ -1,23 +1,23 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'lotus-mongodb/version'
+require 'nelumba-mongodb/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = "lotus-mongodb"
-  gem.version       = Lotus::MONGODB_VERSION
+  gem.name          = "nelumba-mongodb"
+  gem.version       = Nelumba::MONGODB_VERSION
   gem.authors       = ["wilkie"]
   gem.email         = ["wilkie@xomb.com"]
-  gem.description   = %q{A persistence layer for lotus.}
-  gem.summary       = %q{A persistence layer for lotus.}
-  gem.homepage      = "https://github.com/hotsh/lotus-mongodb"
+  gem.description   = %q{A persistence layer for nelumba.}
+  gem.summary       = %q{A persistence layer for nelumba.}
+  gem.homepage      = "https://github.com/hotsh/nelumba-mongodb"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  #gem.add_dependency "lotus"
+  #gem.add_dependency "nelumba"
   gem.add_dependency "redcarpet"    # Markdown renderer
   gem.add_dependency "bson_ext"     # Database
   gem.add_dependency "mongo_mapper" # Database

@@ -1,4 +1,4 @@
-module Lotus
+module Nelumba
   # This represents how a Person can authenticate to act on our server.
   # This is attached to an Identity and a Person. Use this to allow an
   # Person to generate Activities on this server.
@@ -14,7 +14,7 @@ module Lotus
 
     # An Authorization involves a Person.
     key :person_id,     ObjectId
-    belongs_to :person, :class_name => 'Lotus::Person'
+    belongs_to :person, :class_name => 'Nelumba::Person'
 
     # Whether or not this authorization requires ssl
     key :ssl
@@ -24,7 +24,7 @@ module Lotus
 
     # An Authorization involves an Identity.
     key :identity_id, ObjectId
-    belongs_to :identity, :class_name => 'Lotus::Identity'
+    belongs_to :identity, :class_name => 'Nelumba::Identity'
 
     # You authorize with a username
     key :username,        String
@@ -126,7 +126,7 @@ module Lotus
 
     # Create a hash of the password.
     def self.hash_password(password)
-      BCrypt::Password.create(password, :cost => Lotus::BCRYPT_ROUNDS)
+      BCrypt::Password.create(password, :cost => Nelumba::BCRYPT_ROUNDS)
     end
 
     # Determine if the given password matches the account.
@@ -181,16 +181,16 @@ module Lotus
 
       params = Authorization.sanitize_params(params)
 
-      person = Lotus::Person.new_local(params[:username],
+      person = Nelumba::Person.new_local(params[:username],
                                        params[:domain],
                                        params[:ssl])
       person.save
       params[:person_id] = person.id
 
-      keypair = Lotus::Crypto.new_keypair
+      keypair = Nelumba::Crypto.new_keypair
       params[:private_key] = keypair.private_key
 
-      identity = Lotus::Identity.new_local(person,
+      identity = Nelumba::Identity.new_local(person,
                                            params[:username],
                                            params[:domain],
                                            params[:ssl],
