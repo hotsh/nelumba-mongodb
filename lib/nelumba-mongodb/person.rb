@@ -143,7 +143,7 @@ module Nelumba
     end
 
     # Create a new local Person
-    def self.new_local(username, domain, ssl)
+    def self.new_local(username, domain, port, ssl)
       person = Nelumba::Person.new(:nickname => username,
                                    :name => username,
                                    :display_name => username,
@@ -151,32 +151,32 @@ module Nelumba
 
       # Create url and uid for local Person
       person.url =
-        "http#{ssl ? "s" : ""}://#{domain}/people/#{person.id}"
+        "http#{ssl ? "s" : ""}://#{domain}#{port ? ":#{port}" : ""}/people/#{person.id}"
       person.uid = person.url
 
       # Create feeds for local Person
       person.activities = Nelumba::Feed.new(:person_id => person.id,
-                                          :authors   => [person])
+                                            :authors   => [person])
       person.activities_id = person.activities.id
 
       person.timeline   = Nelumba::Feed.new(:person_id => person.id,
-                                          :authors   => [person])
+                                            :authors   => [person])
       person.timeline_id = person.timeline.id
 
       person.shared     = Nelumba::Feed.new(:person_id => person.id,
-                                          :authors   => [person])
+                                            :authors   => [person])
       person.shared_id = person.shared.id
 
       person.favorites  = Nelumba::Feed.new(:person_id => person.id,
-                                          :authors   => [person])
+                                            :authors   => [person])
       person.favorites_id = person.favorites.id
 
       person.replies    = Nelumba::Feed.new(:person_id => person.id,
-                                          :authors   => [person])
+                                            :authors   => [person])
       person.replies_id = person.replies.id
 
       person.mentions   = Nelumba::Feed.new(:person_id => person.id,
-                                          :authors   => [person])
+                                            :authors   => [person])
       person.mentions_id = person.mentions.id
 
       person

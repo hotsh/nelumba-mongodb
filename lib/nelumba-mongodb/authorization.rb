@@ -22,6 +22,9 @@ module Nelumba
     # The domain this authorization is registered for
     key :domain
 
+    # The port authorization is tied to
+    key :port
+
     # An Authorization involves an Identity.
     key :identity_id, ObjectId
     belongs_to :identity, :class_name => 'Nelumba::Identity'
@@ -58,12 +61,13 @@ module Nelumba
       return nil unless auth
 
       domain    = auth.identity.domain
-      url       = "http#{auth.identity.ssl ? "s" : ""}://#{auth.identity.domain}"
+      port      = auth.identity.port
+      url       = "http#{auth.identity.ssl ? "s" : ""}://#{auth.identity.domain}#{port ? ":#{port}" : ""}"
       feed_id   = auth.identity.outbox.id
       person_id = auth.person.id
 
       {
-        :subject => "acct:#{username}@#{domain}",
+        :subject => "acct:#{username}@#{domain}#{port ? ":#{port}" : ""}",
         :expires => "#{(Time.now.utc.to_date >> 1).xmlschema}Z",
         :aliases => [
           "#{url}#{auth.identity.profile_page}",
@@ -182,8 +186,9 @@ module Nelumba
       params = Authorization.sanitize_params(params)
 
       person = Nelumba::Person.new_local(params[:username],
-                                       params[:domain],
-                                       params[:ssl])
+                                         params[:domain],
+                                         params[:port],
+                                         params[:ssl])
       person.save
       params[:person_id] = person.id
 
@@ -191,10 +196,11 @@ module Nelumba
       params[:private_key] = keypair.private_key
 
       identity = Nelumba::Identity.new_local(person,
-                                           params[:username],
-                                           params[:domain],
-                                           params[:ssl],
-                                           keypair.public_key)
+                                             params[:username],
+                                             params[:domain],
+                                             params[:port],
+                                             params[:ssl],
+                                             keypair.public_key)
       identity.save
       params[:identity_id] = identity.id
 

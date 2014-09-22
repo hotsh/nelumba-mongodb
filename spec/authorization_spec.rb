@@ -67,7 +67,7 @@ describe Nelumba::Authorization do
     end
 
     it "should create a person attached to this authorization" do
-      person = Nelumba::Person.new_local "wilkie", "www.example.com", true
+      person = Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
       Nelumba::Person.expects(:new_local).returns(person)
 
       Nelumba::Authorization.new("username" => "wilkie",
@@ -77,51 +77,51 @@ describe Nelumba::Authorization do
     end
 
     it "should save the person attached to this authorization" do
-      person = Nelumba::Person.new_local "wilkie", "www.example.com", true
+      person = Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
       Nelumba::Person.stubs(:new_local).returns(person)
 
       Nelumba::Authorization.new("username" => "wilkie",
-                               "password" => "foobar",
-                               "domain" => "www.example.com",
-                               "ssl" => true)
+                                 "password" => "foobar",
+                                 "domain"   => "www.example.com",
+                                 "ssl"      => true)
 
       Nelumba::Person.first(:id => person.id).activities_id.wont_equal nil
     end
 
     it "should create a Person with the given username" do
-      person = Nelumba::Person.new_local "wilkie", "www.example.com", true
+      person = Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
       Nelumba::Person.expects(:new_local)
-                   .with("wilkie", anything, anything)
-                   .returns(person)
+                     .with("wilkie", anything, anything, anything)
+                     .returns(person)
 
       Nelumba::Authorization.new("username" => "wilkie",
-                               "password" => "foobar",
-                               "domain" => "www.example.com",
-                               "ssl" => true)
+                                 "password" => "foobar",
+                                 "domain"   => "www.example.com",
+                                 "ssl"      => true)
     end
 
     it "should create a Person with the given domain" do
-      person = Nelumba::Person.new_local "wilkie", "www.example.com", true
+      person = Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
       Nelumba::Person.expects(:new_local)
-                   .with(anything, "www.example.com", anything)
+                   .with(anything, "www.example.com", anything, anything)
                    .returns(person)
 
       Nelumba::Authorization.new("username" => "wilkie",
-                               "password" => "foobar",
-                               "domain" => "www.example.com",
-                               "ssl" => true)
+                                 "password" => "foobar",
+                                 "domain"   => "www.example.com",
+                                 "ssl"      => true)
     end
 
     it "should create a Person with the given ssl requirements" do
-      person = Nelumba::Person.new_local "wilkie", "www.example.com", true
+      person = Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
       Nelumba::Person.expects(:new_local)
-                   .with(anything, anything, true)
+                   .with(anything, anything, anything, true)
                    .returns(person)
 
       Nelumba::Authorization.new("username" => "wilkie",
-                               "password" => "foobar",
-                               "domain" => "www.example.com",
-                               "ssl" => true)
+                                 "password" => "foobar",
+                                 "domain"   => "www.example.com",
+                                 "ssl"      => true)
     end
 
     it "should create an Nelumba::Identity" do
@@ -129,71 +129,71 @@ describe Nelumba::Authorization do
                      .returns(Nelumba::Identity.new)
 
       Nelumba::Authorization.new("username" => "wilkie",
-                               "password" => "foobar",
-                               "domain" => "www.example.com",
-                               "ssl" => true)
+                                 "password" => "foobar",
+                                 "domain"   => "www.example.com",
+                                 "ssl"      => true)
     end
 
     it "should create an Nelumba::Identity with the generated public key" do
       Nelumba::Identity.expects(:new_local)
-                     .with(anything, anything, anything, anything, "PUBKEY")
+                     .with(anything, anything, anything, anything, anything, "PUBKEY")
                      .returns(Nelumba::Identity.new)
 
       Nelumba::Authorization.new("username" => "wilkie",
-                               "password" => "foobar",
-                               "domain" => "www.example.com",
-                               "ssl" => true)
+                                 "password" => "foobar",
+                                 "domain"   => "www.example.com",
+                                 "ssl"      => true)
     end
 
     it "should create an Nelumba::Identity with the given username" do
       Nelumba::Identity.expects(:new_local)
-                     .with(anything, "wilkie", anything, anything, anything)
+                     .with(anything, "wilkie", anything, anything, anything, anything)
                      .returns(Nelumba::Identity.new)
 
       Nelumba::Authorization.new("username" => "wilkie",
-                               "password" => "foobar",
-                               "domain" => "www.example.com",
-                               "ssl" => true)
+                                 "password" => "foobar",
+                                 "domain"   => "www.example.com",
+                                 "ssl"      => true)
     end
 
     it "should create an Nelumba::Identity with the given domain" do
       Nelumba::Identity.expects(:new_local)
-             .with(anything, anything, "www.example.com", anything, anything)
-             .returns(Nelumba::Identity.new)
+        .with(anything, anything, "www.example.com", anything, anything, anything)
+        .returns(Nelumba::Identity.new)
 
       Nelumba::Authorization.new("username" => "wilkie",
-                               "password" => "foobar",
-                               "domain" => "www.example.com",
-                               "ssl" => true)
+                                 "password" => "foobar",
+                                 "domain"   => "www.example.com",
+                                 "ssl"      => true)
     end
 
     it "should create an Nelumba::Identity with the given ssl requirements" do
       Nelumba::Identity.expects(:new_local)
-                     .with(anything, anything, anything, true, anything)
-                     .returns(Nelumba::Identity.new)
+                       .with(anything, anything, anything, anything, true, anything)
+                       .returns(Nelumba::Identity.new)
 
       Nelumba::Authorization.new("username" => "wilkie",
-                               "password" => "foobar",
-                               "domain" => "www.example.com",
-                               "ssl" => true)
+                                 "password" => "foobar",
+                                 "domain"   => "www.example.com",
+                                 "ssl"      => true)
     end
 
     it "should create an Nelumba::Identity with the new person's author" do
-      person = Nelumba::Person.new_local "wilkie", "www.example.com", true
+      person = Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
       Nelumba::Person.stubs(:new_local).returns(person)
 
       Nelumba::Identity.expects(:new_local)
-                     .with(person, anything, anything, anything, anything)
-                     .returns(Nelumba::Identity.new)
+                       .with(person, anything, anything, anything, anything, anything)
+                       .returns(Nelumba::Identity.new)
 
       Nelumba::Authorization.new("username" => "wilkie",
-                               "password" => "foobar",
-                               "domain" => "www.example.com",
-                               "ssl" => true)
+                                 "password" => "foobar",
+                                 "domain"   => "www.example.com",
+                                 "ssl"      => true)
     end
 
     it "should associate a new Nelumba::Identity with this Nelumba::Authorization" do
-      person = Nelumba::Person.new_local "wilkie", "www.example.com", true
+      person = Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
       Nelumba::Person.stubs(:new_local).returns(person)
 
       auth = Nelumba::Authorization.new("username" => "wilkie",

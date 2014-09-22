@@ -19,6 +19,7 @@ module Nelumba
     key :username
     key :ssl
     key :domain
+    key :port
 
     # Identities have a public key that they use to sign salmon responses.
     #  Leasing: To ensure that keys can only be compromised in a small window but
@@ -76,11 +77,12 @@ module Nelumba
       self.public_key
     end
 
-    def self.new_local(person, username, domain, ssl, public_key)
+    def self.new_local(person, username, domain, port, ssl, public_key)
       Nelumba::Identity.new(
         :username => username,
         :domain => domain,
         :ssl => ssl,
+        :port => port,
         :person_id => person.id,
         :public_key => public_key,
         :salmon_endpoint => "/people/#{person.id}/salmon",

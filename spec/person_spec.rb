@@ -134,42 +134,42 @@ describe Nelumba::Person do
 
     it "should create an activities aggregate upon creation" do
       @person.expects(:activities_id=).with(@aggregate.id)
-      Nelumba::Person.new_local "wilkie", "www.example.com", true
+      Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
     end
 
     it "should create a timeline aggregate upon creation" do
       @person.expects(:timeline_id=).with(@aggregate.id)
-      Nelumba::Person.new_local "wilkie", "www.example.com", true
+      Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
     end
 
     it "should create a shared aggregate upon creation" do
       @person.expects(:shared_id=).with(@aggregate.id)
-      Nelumba::Person.new_local "wilkie", "www.example.com", true
+      Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
     end
 
     it "should create a favorites aggregate upon creation" do
       @person.expects(:favorites_id=).with(@aggregate.id)
-      Nelumba::Person.new_local "wilkie", "www.example.com", true
+      Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
     end
 
     it "should create a replies aggregate upon creation" do
       @person.expects(:replies_id=).with(@aggregate.id)
-      Nelumba::Person.new_local "wilkie", "www.example.com", true
+      Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
     end
 
     it "should create a mentions aggregate upon creation" do
       @person.expects(:mentions_id=).with(@aggregate.id)
-      Nelumba::Person.new_local "wilkie", "www.example.com", true
+      Nelumba::Person.new_local "wilkie", "www.example.com", nil, true
     end
 
     it "should set the url to a valid url for the given domain" do
       @person.expects(:url=).with("http://status.example.com/people/#{@person.id}")
-      Nelumba::Person.new_local "wilkie", "status.example.com", false
+      Nelumba::Person.new_local "wilkie", "status.example.com", nil, false
     end
 
     it "should respect ssl requirements in the url" do
       @person.expects(:url=).with("https://status.example.com/people/#{@person.id}")
-      Nelumba::Person.new_local "wilkie", "status.example.com", true
+      Nelumba::Person.new_local "wilkie", "status.example.com", nil, true
     end
   end
 
