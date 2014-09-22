@@ -618,19 +618,19 @@ describe Nelumba::Person do
       identity = Nelumba::Identity.new
 
       Nelumba::Identity.stubs(:find_by_identifier).returns(nil)
-      Nelumba.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
+      Nelumba::Discover.stubs(:identity).with("wilkie@rstat.us").returns(identity)
 
       feed = Nelumba::Feed.new(:authors => [Nelumba::Person.new])
       feed.stubs(:save)
 
-      Nelumba.stubs(:discover_feed).with(identity).returns(feed)
+      Nelumba::Discover.stubs(:feed).with(identity).returns(feed)
 
       Nelumba::Identity.expects(:create!).returns(identity)
       Nelumba::Person.discover! "wilkie@rstat.us"
     end
 
     it "should return nil if identity cannot be discovered" do
-      Nelumba.stubs(:discover_identity).returns(nil)
+      Nelumba::Discover.stubs(:identity).returns(nil)
 
       Nelumba::Person.discover!("bogus@rstat.us").must_equal nil
     end
@@ -640,9 +640,9 @@ describe Nelumba::Person do
 
       Nelumba::Identity.stubs(:find_by_identifier).returns(nil)
 
-      Nelumba.stubs(:discover_identity).returns(identity)
+      Nelumba::Discover.stubs(:identity).returns(identity)
 
-      Nelumba.stubs(:discover_feed).returns(nil)
+      Nelumba::Discover.stubs(:feed).returns(nil)
 
       Nelumba::Person.discover!("bogus@rstat.us").must_equal nil
     end
@@ -651,13 +651,13 @@ describe Nelumba::Person do
       Nelumba::Identity.stubs(:find_by_identifier).returns(nil)
 
       identity = Nelumba::Identity.new
-      Nelumba.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
+      Nelumba::Discover.stubs(:identity).with("wilkie@rstat.us").returns(identity)
 
       author = Nelumba::Person.new
       feed = Nelumba::Feed.new(:authors => [author])
       feed.stubs(:save)
 
-      Nelumba.stubs(:discover_feed).with(identity).returns(feed)
+      Nelumba::Discover.stubs(:feed).with(identity).returns(feed)
 
       Nelumba::Person.discover!("wilkie@rstat.us").must_equal author
     end
@@ -667,7 +667,7 @@ describe Nelumba::Person do
       identity = Nelumba::Identity.new(:person => author)
 
       Nelumba::Identity.stubs(:find_by_identifier).returns(identity)
-      Nelumba.stubs(:discover_identity).with("wilkie@rstat.us").returns(nil)
+      Nelumba::Discover.stubs(:identity).with("wilkie@rstat.us").returns(nil)
 
       Nelumba::Person.discover!("wilkie@rstat.us").must_equal author
     end
@@ -676,10 +676,10 @@ describe Nelumba::Person do
       identity = Nelumba::Identity.new
 
       Nelumba::Identity.stubs(:find_by_identifier).returns(nil)
-      Nelumba.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
+      Nelumba::Discover.stubs(:identity).with("wilkie@rstat.us").returns(identity)
 
       feed = Nelumba::Feed.new(:authors => [Nelumba::Person.new])
-      Nelumba.stubs(:discover_feed).with(identity).returns(feed)
+      Nelumba::Discover.stubs(:feed).with(identity).returns(feed)
 
       Nelumba::Identity.expects(:create!)
         .with(has_entry(:outbox, feed))
@@ -691,11 +691,11 @@ describe Nelumba::Person do
     it "should assign the Identity person to the discovered Person" do
       identity = Nelumba::Identity.new
       Nelumba::Identity.stubs(:find_by_identifier).returns(nil)
-      Nelumba.stubs(:discover_identity).with("wilkie@rstat.us").returns(identity)
+      Nelumba::Discover.stubs(:identity).with("wilkie@rstat.us").returns(identity)
 
       author = Nelumba::Person.new
       feed = Nelumba::Feed.new(:authors => [author])
-      Nelumba.stubs(:discover_feed).with(identity).returns(feed)
+      Nelumba::Discover.stubs(:feed).with(identity).returns(feed)
 
       Nelumba::Identity.expects(:create!)
         .with(has_entry(:person_id, author.id))
@@ -710,7 +710,7 @@ describe Nelumba::Person do
       author = Nelumba::Person.create!
       identity = Nelumba::Identity.create!(:person_id => author.id)
 
-      Nelumba.expects(:discover_feed).with(identity)
+      Nelumba::Discover.expects(:feed).with(identity)
 
       author.discover_feed!
     end

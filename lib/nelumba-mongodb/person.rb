@@ -492,7 +492,7 @@ module Nelumba
 
     # Discover and populate the associated activity feed for this author.
     def discover_feed!
-      Nelumba.discover_feed(self.identity)
+      Nelumba::Discover.feed(self.identity)
     end
 
     # Discover an Person by the given feed location or account.
@@ -502,11 +502,11 @@ module Nelumba
       return identity.person if identity
 
       # Discover the Identity
-      identity = Nelumba.discover_identity(author_identifier)
+      identity = Nelumba::Discover.identity(author_identifier)
       return nil unless identity
 
       # Use their Identity to discover their feed and their Person
-      feed = Nelumba.discover_feed(identity)
+      feed = Nelumba::Discover.feed(identity)
       return nil unless feed
 
       feed.save
