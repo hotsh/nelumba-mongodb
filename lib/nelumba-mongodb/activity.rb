@@ -261,34 +261,6 @@ module Nelumba
       self.create!(activity)
     end
 
-    # Yields the parts of speech for the activity. Returns a hash with the
-    # following:
-    #
-    # :verb         => The action being performed by the subject.
-    # :subject      => The entity performing the action.
-    # :object       => The object the action is being applied to. Could be an
-    #                    Person or Activity
-    # :object_type  => How to interpret the object of the action.
-    # :object_owner => The entity that owns the object of the action.
-    # :when         => The Date when the activity took place.
-    # :activity     => A reference to the original Activity.
-    def parts_of_speech
-      object_owner = nil
-      object_owner = self.object.actor if self.object.respond_to?(:actor)
-      object_owner = self.object if self.object.is_a?(Nelumba::Person)
-      object_owner = self.actor unless self.external_object_type
-
-      {
-        :verb         => self.verb || :post,
-        :object       => self.object,
-        :object_type  => self.type || :note,
-        :object_owner => object_owner,
-        :subject      => self.actor,
-        :when         => self.updated,
-        :activity     => self
-      }
-    end
-
     def self.find_from_notification(notification)
       Nelumba::Activity.first(:uid => notification.activity.uid)
     end
