@@ -177,19 +177,19 @@ describe Nelumba::Feed do
 
   describe "discover!" do
     it "should use Nelumba to discover the feed given by the url" do
-      Nelumba.expects(:discover_feed).with("feed_url")
+      Nelumba::Discover.expects(:feed).with("feed_url")
       Nelumba::Feed.discover!("feed_url")
     end
 
     it "should return false when the feed cannot be discovered" do
-      Nelumba.stubs(:discover_feed).returns(nil)
+      Nelumba::Discover.stubs(:feed).returns(nil)
       Nelumba::Feed.discover!("feed_url").must_equal false
     end
 
     it "should create a new feed when the discovered feed does not exist" do
       nelumba_feed = Nelumba::Feed.new
       nelumba_feed.stubs(:id).returns("UID")
-      Nelumba.stubs(:discover_feed).returns(nelumba_feed)
+      Nelumba::Discover.stubs(:feed).returns(nelumba_feed)
 
       Nelumba::Feed.expects(:create!).with(nelumba_feed)
       Nelumba::Feed.discover!("feed_url")
@@ -205,12 +205,12 @@ describe Nelumba::Feed do
     it "should return a known feed when uids match" do
       nelumba_feed = Nelumba::Feed.new
       nelumba_feed.stubs(:uid).returns("UID")
-      Nelumba.stubs(:discover_feed).returns(nelumba_feed)
+      Nelumba::Discover.stubs(:feed).returns(nelumba_feed)
 
       feed = Nelumba::Feed.new
       Nelumba::Feed.stubs(:first).with(has_entry(:url, "feed_url")).returns(nil)
       Nelumba::Feed.stubs(:first).with(has_entry(:uid, "UID")).returns(feed)
-      Nelumba.stubs(:discover_feed).returns(nelumba_feed)
+      Nelumba::Discover.stubs(:feed).returns(nelumba_feed)
 
       Nelumba::Feed.discover!("feed_url").must_equal feed
     end

@@ -158,7 +158,7 @@ module Nelumba
       feed = Feed.first(:url => feed_identifier)
       return feed if feed
 
-      feed = Nelumba.discover_feed(feed_identifier)
+      feed = Nelumba::Discover.feed(feed_identifier)
       return false unless feed
 
       existing_feed = Feed.first(:uid => feed.uid)

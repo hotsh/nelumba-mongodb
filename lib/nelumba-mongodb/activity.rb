@@ -252,7 +252,7 @@ module Nelumba
       activity = Nelumba::Activity.first(:url => activity_identifier)
       return activity if activity
 
-      activity = Nelumba.discover_activity(activity_identifier)
+      activity = Nelumba::Discover.activity(activity_identifier)
       return false unless activity
 
       existing = Activity.first(:uid => activity.uid)

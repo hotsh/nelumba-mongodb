@@ -220,12 +220,12 @@ describe Nelumba::Activity do
 
   describe "discover!" do
     it "should call out to Nelumba to discover the given Nelumba::Activity" do
-      Nelumba.expects(:discover_activity).with("activity_url")
+      Nelumba::Discover.expects(:activity).with("activity_url")
       Nelumba::Activity.discover!("activity_url")
     end
 
     it "should return false when the Nelumba::Activity cannot be discovered" do
-      Nelumba.stubs(:discover_activity).returns(false)
+      Nelumba::Discover.stubs(:activity).returns(false)
       Nelumba::Activity.discover!("activity_url").must_equal false
     end
 
@@ -241,7 +241,7 @@ describe Nelumba::Activity do
 
       nelumba_activity = Nelumba::Activity.new(:uid => "ID")
 
-      Nelumba.stubs(:discover_activity).returns(nelumba_activity)
+      Nelumba::Discover.stubs(:activity).returns(nelumba_activity)
       Nelumba::Activity.discover!("alternative_url").uid.must_equal activity.uid
     end
 
@@ -249,7 +249,7 @@ describe Nelumba::Activity do
       nelumba_activity = Nelumba::Activity.new
       nelumba_activity.stubs(:id).returns("ID")
 
-      Nelumba.stubs(:discover_activity).returns(nelumba_activity)
+      Nelumba::Discover.stubs(:activity).returns(nelumba_activity)
       Nelumba::Activity.expects(:create!).returns("new_activity")
       Nelumba::Activity.discover!("alternative_url")
     end
@@ -258,7 +258,7 @@ describe Nelumba::Activity do
       nelumba_activity = Nelumba::Activity.new
       nelumba_activity.stubs(:id).returns("ID")
 
-      Nelumba.stubs(:discover_activity).returns(nelumba_activity)
+      Nelumba::Discover.stubs(:activity).returns(nelumba_activity)
       Nelumba::Activity.stubs(:create!).returns("new_activity")
       Nelumba::Activity.discover!("alternative_url").must_equal "new_activity"
     end
