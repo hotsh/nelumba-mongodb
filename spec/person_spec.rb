@@ -50,6 +50,10 @@ describe Nelumba::Person do
       Nelumba::Person.keys.keys.must_include "gender"
     end
 
+    it "should have a pronoun" do
+      Nelumba::Person.keys.keys.must_include "pronoun"
+    end
+
     it "should have a note" do
       Nelumba::Person.keys.keys.must_include "note"
     end

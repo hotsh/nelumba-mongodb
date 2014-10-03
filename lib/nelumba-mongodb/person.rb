@@ -116,6 +116,14 @@ module Nelumba
     # The Person's gender.
     key :gender
 
+    # The Person's requested pronouns.
+    #
+    # Contains at least one of the following:
+    #   :plural     => Whether or not the Person is considered plural
+    #   :personal   => The personal pronoun (xe)
+    #   :possessive => The possessive pronoun (her)
+    key :pronoun
+
     # A biographical note.
     key :note
 
