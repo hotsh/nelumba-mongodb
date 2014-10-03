@@ -853,14 +853,14 @@ describe Nelumba::Person do
     it "should allow Nelumba::Person keys" do
       hash = {}
       Nelumba::Person.keys.keys.each do |k|
-        next if ["extended_name", "organization", "address", "_id"].include? k
+        next if ["extended_name", "organization", "address", "pronoun", "_id"].include? k
         hash[k] = "foobar"
       end
 
       hash = Nelumba::Person.sanitize_params(hash)
 
       Nelumba::Person.keys.keys.each do |k|
-        next if ["extended_name", "organization", "address", "_id"].include? k
+        next if ["extended_name", "organization", "address", "pronoun", "_id"].include? k
         hash[k.intern].must_equal "foobar"
       end
     end
@@ -868,14 +868,14 @@ describe Nelumba::Person do
     it "should convert strings to symbols" do
       hash = {}
       Nelumba::Person.keys.keys.each do |k|
-        next if ["extended_name", "organization", "address", "_id"].include? k
+        next if ["extended_name", "organization", "address", "pronoun", "_id"].include? k
         hash[k] = "foobar"
       end
 
       hash = Nelumba::Person.sanitize_params(hash)
 
       Nelumba::Person.keys.keys.each do |k|
-        next if ["extended_name", "organization", "address", "_id"].include? k
+        next if ["extended_name", "organization", "address", "pronoun", "_id"].include? k
         hash[k.intern].must_equal "foobar"
       end
     end

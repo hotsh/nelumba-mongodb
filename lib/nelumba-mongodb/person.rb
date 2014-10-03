@@ -94,6 +94,22 @@ module Nelumba
     #                   played in this organization.
     key :organization
 
+    def organization
+      hash = self[:organization] || {}
+
+      hash.keys.each do |k|
+        if ["name", "department", "title", "type", "start_date", "end_date",
+            "description"].include?(k.to_s)
+          hash[(k.to_sym rescue k)] =
+            hash.delete(k)
+        else
+          hash.delete(k)
+        end
+      end
+
+      hash
+    end
+
     # A Hash containing the location of this Person:
     #   :formatted      => A formatted representating of the address. May
     #                     contain newlines.
@@ -103,6 +119,22 @@ module Nelumba
     #   :postal_code    => The zipcode or postal code component.
     #   :country        => The country name component.
     key :address
+
+    def address
+      hash = self[:address] || {}
+
+      hash.keys.each do |k|
+        if ["formatted", "street_address", "locality", "region", "country",
+            "postal_code"].include?(k.to_s)
+          hash[(k.to_sym rescue k)] =
+            hash.delete(k)
+        else
+          hash.delete(k)
+        end
+      end
+
+      hash
+    end
 
     # A Hash containing the account information for this Person:
     #   :domain   => The top-most authoriative domain for this account. (e.g.
@@ -123,6 +155,21 @@ module Nelumba
     #   :personal   => The personal pronoun (xe)
     #   :possessive => The possessive pronoun (her)
     key :pronoun
+
+    def pronoun
+      hash = self[:pronoun] || {}
+
+      hash.keys.each do |k|
+        if ["personal", "possessive", "plural"].include?(k.to_s)
+          hash[(k.to_sym rescue k)] =
+            hash.delete(k)
+        else
+          hash.delete(k)
+        end
+      end
+
+      hash
+    end
 
     # A biographical note.
     key :note
