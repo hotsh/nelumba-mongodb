@@ -463,6 +463,21 @@ module Nelumba
         end
       end
 
+      if params["pronoun"]
+        unless params["pronoun"].is_a? Hash
+          params.delete "pronoun"
+        else
+          params["pronoun"].keys.each do |k|
+            if ["personal", "possessive", "plural"].include?(k.to_s)
+              params["pronoun"][(k.to_sym rescue k)] =
+                params["pronoun"].delete(k)
+            else
+              params["pronoun"].delete(k)
+            end
+          end
+        end
+      end
+
       if params["address"]
         unless params["address"].is_a? Hash
           params.delete "address"
