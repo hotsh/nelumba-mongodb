@@ -2,16 +2,10 @@ module Nelumba
   class Feed
     def initialize(*args); super(*args); end
 
-    include MongoMapper::Document
+    include Nelumba::Object
 
     # Ensure writes happen
     safe
-
-    # A unique identifier for this Feed.
-    key :uid
-
-    # A URL for this Feed that can be used to retrieve a representation.
-    key :url
 
     # Feeds generally belong to a person.
     key :person_id, ObjectId
@@ -23,12 +17,6 @@ module Nelumba
     # The type of rights one has to this feed generally for human display.
     key :rights
 
-    # The title of this feed.
-    key :title
-
-    # The representation of the title. (e.g. "html")
-    key :title_type
-
     # The subtitle of the feed.
     key :subtitle
 
@@ -39,11 +27,6 @@ module Nelumba
     key  :contributors_ids, Array, :default => []
     remove_method :contributors
     many :contributors,     :class_name => 'Nelumba::Person', :in => :contributors_ids
-
-    # An Array of Persons that create the content in this Feed.
-    key  :authors_ids,  Array, :default => []
-    remove_method :authors
-    many :authors,      :class_name => 'Nelumba::Person', :in => :authors_ids
 
     # An Array of Activities that are contained in this Feed.
     key :items_ids,  Array
@@ -63,17 +46,6 @@ module Nelumba
 
     # TODO: Normalize the first 100 or so activities. I dunno.
     key :normalized
-
-    # Automated Timestamps
-    key :published, Time
-    key :updated,   Time
-    before_save :update_timestamps
-
-    def update_timestamps
-      now = Time.now.utc
-      self[:published] ||= now if !persisted?
-      self[:updated]     = now
-    end
 
     # The external feeds being aggregated.
     key  :following_ids, Array

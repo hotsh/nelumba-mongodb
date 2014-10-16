@@ -18,20 +18,12 @@ describe Nelumba::Activity do
       Nelumba::Activity.keys.keys.must_include "type"
     end
 
-    it "should have an actor_id" do
-      Nelumba::Activity.keys.keys.must_include "actor_id"
+    it "should have an actors_tuples" do
+      Nelumba::Activity.keys.keys.must_include "actors_tuples"
     end
 
-    it "should have an actor_type" do
-      Nelumba::Activity.keys.keys.must_include "actor_type"
-    end
-
-    it "should have a target_id" do
-      Nelumba::Activity.keys.keys.must_include "target_id"
-    end
-
-    it "should have a target_type" do
-      Nelumba::Activity.keys.keys.must_include "target_type"
+    it "should have a targets_tuples" do
+      Nelumba::Activity.keys.keys.must_include "targets_tuples"
     end
 
     it "should have an external_object_id" do
@@ -99,70 +91,133 @@ describe Nelumba::Activity do
     end
   end
 
-  describe "#actor=" do
+  describe "#actors=" do
     it "should assign actor_id to the id of a given Nelumba::Person" do
       activity = Nelumba::Activity.new
       actor = Nelumba::Person.new
 
-      activity.actor = actor
+      activity.actors = [actor]
 
-      activity.actor_id.must_equal actor.id
+      activity.actors_tuples.first.first.must_equal actor.id
     end
 
     it "should assign actor_id to the id of a given Nelumba::Activity" do
       activity = Nelumba::Activity.new
       actor = Nelumba::Activity.new
 
-      activity.actor = actor
+      activity.actors = [actor]
 
-      activity.actor_id.must_equal actor.id
+      activity.actors_tuples.first.first.must_equal actor.id
     end
 
     it "should assign actor_type appropriately for a given Nelumba::Person" do
       activity = Nelumba::Activity.new
       actor = Nelumba::Person.new
 
-      activity.actor = actor
+      activity.actors = [actor]
 
-      activity.actor_type.must_equal "Person"
+      activity.actors_tuples.first[1].must_equal "Person"
     end
 
     it "should assign actor_type appropriately for a given Nelumba::Activity" do
       activity = Nelumba::Activity.new
       actor = Nelumba::Activity.new
 
-      activity.actor = actor
+      activity.actors = [actor]
 
-      activity.actor_type.must_equal "Activity"
+      activity.actors_tuples.first[1].must_equal "Activity"
     end
 
     it "should return the given object instead of querying the database" do
       activity = Nelumba::Activity.new
       actor = Nelumba::Activity.new
 
-      activity.actor = actor
+      activity.actors = [actor]
 
-      activity.actor.id.must_equal actor.id
+      activity.actors.first.id.must_equal actor.id
     end
   end
 
-  describe "#actor" do
+  describe "#actors" do
     it "should retrieve a stored Nelumba::Person" do
       actor = Nelumba::Person.create
-      activity = Nelumba::Activity.new(:actor_id => actor.id,
-                                       :actor_type => "Person")
+      activity = Nelumba::Activity.new(:actors => [actor])
 
-      activity.actor.id.must_equal actor.id
-      activity.actor.class.must_equal Nelumba::Person
+      activity.actors.first.id.must_equal actor.id
+      activity.actors.first.class.must_equal Nelumba::Person
     end
 
     it "should retrieve a stored Nelumba::Activity" do
       actor = Nelumba::Activity.create
-      activity = Nelumba::Activity.new(:actor_id => actor.id,
-                                       :actor_type => "Activity")
+      activity = Nelumba::Activity.new(:actors => [actor])
 
-      activity.actor.id.must_equal actor.id
-      activity.actor.class.must_equal Nelumba::Activity
+      activity.actors.first.id.must_equal actor.id
+      activity.actors.first.class.must_equal Nelumba::Activity
+    end
+  end
+
+  describe "#targets" do
+    it "should retrieve a stored Nelumba::Person" do
+      target = Nelumba::Person.create
+      activity = Nelumba::Activity.new(:targets => [target])
+
+      activity.targets.first.id.must_equal target.id
+      activity.targets.first.class.must_equal Nelumba::Person
+    end
+
+    it "should retrieve a stored Nelumba::Activity" do
+      target = Nelumba::Activity.create
+      activity = Nelumba::Activity.new(:targets => [target])
+
+      activity.targets.first.id.must_equal target.id
+      activity.targets.first.class.must_equal Nelumba::Activity
+    end
+  end
+
+  describe "#targets=" do
+    it "should assign target_id to the id of a given Nelumba::Person" do
+      activity = Nelumba::Activity.new
+      target = Nelumba::Person.new
+
+      activity.targets = [target]
+
+      activity.targets_tuples.first.first.must_equal target.id
+    end
+
+    it "should assign target_id to the id of a given Nelumba::Activity" do
+      activity = Nelumba::Activity.new
+      target = Nelumba::Activity.new
+
+      activity.targets = [target]
+
+      activity.targets_tuples.first.first.must_equal target.id
+    end
+
+    it "should assign target_type appropriately for a given Nelumba::Person" do
+      activity = Nelumba::Activity.new
+      target = Nelumba::Person.new
+
+      activity.targets = [target]
+
+      activity.targets_tuples.first[1].must_equal "Person"
+    end
+
+    it "should assign target_type appropriately for a given Nelumba::Activity" do
+      activity = Nelumba::Activity.new
+      target = Nelumba::Activity.new
+
+      activity.targets = [target]
+
+      activity.targets_tuples.first[1].must_equal "Activity"
+    end
+
+    it "should return the given object instead of querying the database" do
+      activity = Nelumba::Activity.new
+      target = Nelumba::Activity.new
+
+      activity.targets = [target]
+
+      activity.targets.first.id.must_equal target.id
     end
   end
 
@@ -213,7 +268,7 @@ describe Nelumba::Activity do
       author_hash = {:uid => "PERSON_UID"}
       hash = {:uid => "UID", :author => author_hash}
 
-      Nelumba::Person.expects(:find_or_create_by_uid!).with(author_hash)
+      Nelumba::Person.expects(:find_or_create_by_uid!).with(author_hash).returns(Nelumba::Person.new)
       Nelumba::Activity.find_or_create_by_uid!(hash)
     end
   end
@@ -267,13 +322,13 @@ describe Nelumba::Activity do
   describe "create_from_notification!" do
     before do
       activity_author = Nelumba::Person.create :url => "acct:wilkie@rstat.us",
-                                             :uid => "AUTHOR ID"
+                                               :uid => "AUTHOR ID"
 
       activity = Nelumba::Activity.new :verb  => :follow,
-                                     :uid   => "1",
-                                     :title => "New Title",
-                                     :url   => "foo",
-                                     :actor => activity_author
+                                       :uid   => "1",
+                                       :title => "New Title",
+                                       :url   => "foo",
+                                       :actor => activity_author
 
       @notification = mock('Nelumba::Notification')
       @notification.stubs(:activity).returns(activity)

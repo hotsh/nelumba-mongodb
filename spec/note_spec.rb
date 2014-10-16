@@ -46,7 +46,7 @@ describe Nelumba::Note do
   describe "self.find_by_id" do
     it "should not find a different type of object" do
       note = Nelumba::Article.new(:content => "foo",
-                             :title   => "bar")
+                                  :title   => "bar")
       activity = Nelumba::Activity.create :object => note
 
       Nelumba::Note.find_by_id(note.id).must_equal nil

@@ -18,13 +18,11 @@ module Nelumba
     #   :post, :save, :share, :tag, :update
     key :verb
 
-    # Determines what is acting.
-    key :actor_id, ObjectId
-    key :actor_type, String
+    # An Array of Persons that create the content in this Feed.
+    key :actors_tuples, Array, :default => []
 
     # Determines what the action is acting upon.
-    key :target_id, ObjectId
-    key :target_type, String
+    key :targets_tuples, Array, :default => []
 
     # Can attach an external object to this Activity.
     key :external_object_id, ObjectId
@@ -32,41 +30,6 @@ module Nelumba
 
     # Optionally, an object can be embedded inside an Activity.
     one :embedded_object, :class_name => "Nelumba::Comment", :polymorphic => true
-
-    # The title of the Activity.
-    key :title
-
-    # Contains the source of this Activity if it is a repost or otherwise copied
-    # from another Feed.
-    key :source, :class_name => 'Nelumba::Feed'
-
-    # Contains the Activity this Activity is a response of.
-    key :in_reply_to_ids, Array
-    remove_method :in_reply_to
-    many :in_reply_to, :in => :in_reply_to_ids, :class_name => 'Nelumba::Activity'
-
-    # Contains the Activities that are replies to this one
-    key :replies_ids, Array
-    remove_method :replies
-    many :replies, :in => :replies_ids, :class_name => 'Nelumba::Activity'
-
-    # Contains the Persons this Activity mentions.
-    key :mentions_ids, Array
-    remove_method :mentions
-    many :mentions, :in => :mentions_ids, :class_name => 'Nelumba::Person'
-
-    # Contains the Persons that have shared this activity
-    key :shares_ids, Array
-    remove_method :shares
-    many :shares, :in => :shares_ids, :class_name => 'Nelumba::Person'
-
-    # Contains the Persons that have liked this activity
-    key :likes_ids, Array
-    remove_method :likes
-    many :likes, :in => :likes_ids, :class_name => 'Nelumba::Person'
-
-    # Hash containing various interaction metadata
-    key :interactions
 
     # Ensure that url and uid for the activity are set
     before_create :ensure_uid_and_url
@@ -134,35 +97,60 @@ module Nelumba
 
     # Intern, for consistency, standard object types.
     def type=(type)
-      if STANDARD_TYPES.map(&:to_s).include? type
-        type = type.intern
-      end
-
+      type = type.intern
       super type
     end
 
-    # Set the actor.
-    def actor=(obj)
-      if obj.nil?
-        self.actor_id = nil
-        self.actor_type = nil
-        return
+    # Set the actors.
+    def actors=(obj)
+      obj ||= []
+
+      @actors = obj
+      self[:actors_tuples] = obj.map do |obj|
+        s = obj.class.to_s
+        if s.start_with? "Nelumba::"
+          s = s[9..-1]
+        end
+        [obj.id, s]
       end
-
-      @actor = obj
-
-      self.actor_id   = obj.id
-      self.actor_type = obj.class.to_s
-      self.actor_type = self.actor_type[9..-1] if self.actor_type.start_with? "Nelumba::"
     end
 
-    # Get the actor.
-    def actor
-      return @actor if @actor
+    # Get the actors.
+    def actors
+      return @actors if @actors
 
-      return nil if self.actor_type && !Nelumba.const_defined?(self.actor_type)
-      klass = Nelumba.const_get(self.actor_type) if self.actor_type
-      @actor = klass.first(:id => self.actor_id) if klass && self.actor_id
+      @actors = self.actors_tuples.map do |tuple|
+        id, type = *tuple
+        return nil if type && !Nelumba.const_defined?(type)
+        klass = Nelumba.const_get(type) if type
+        klass.find_by_id(id) if klass && id
+      end
+    end
+
+    # Set the actors.
+    def targets=(obj)
+      obj ||= []
+
+      @targets = obj
+      self[:targets_tuples] = obj.map do |obj|
+        s = obj.class.to_s
+        if s.start_with? "Nelumba::"
+          s = s[9..-1]
+        end
+        [obj.id, s]
+      end
+    end
+
+    # Get the targets.
+    def targets
+      return @targets if @targets
+
+      @targets = self.targets_tuples.map do |tuple|
+        id, type = *tuple
+        return nil if type && !Nelumba.const_defined?(type)
+        klass = Nelumba.const_get(type) if type
+        klass.find_by_id(id) if klass && id
+      end
     end
 
     # Set the object.
@@ -179,7 +167,7 @@ module Nelumba
         self.external_object_id   = obj.id
         self.external_object_type = obj.class.to_s
         if self.external_object_type.start_with? "Nelumba::"
-          self.external_object_type = self.external_object_type[7..-1]
+          self.external_object_type = self.external_object_type[9..-1]
         end
       end
       @object = obj
@@ -206,6 +194,11 @@ module Nelumba
 
         if arg[:author]
           arg[:author] = Person.find_or_create_by_uid!(arg[:author])
+        end
+
+        if arg.has_key? :author
+          arg[:authors] = [arg[:author]]
+          arg.delete :author
         end
       end
 
@@ -235,8 +228,7 @@ module Nelumba
       if hash.is_a? Nelumba::Activity
         hash = hash.to_hash
 
-        hash.delete :author
-        hash.delete :in_reply_to
+        hash.delete :authors
       end
 
       super hash, *args
@@ -279,9 +271,9 @@ module Nelumba
         else
           internal_activity = Nelumba::Activity.create!(notification.activity)
           internal_author = Nelumba::Person.find_or_create_by_uid!(
-                              notification.activity.actor.uid)
+                              notification.activity.actors.first.uid)
 
-          internal_activity.actor = internal_author
+          internal_activity.actors = [internal_author]
           internal_activity.save
           internal_activity
         end
@@ -292,7 +284,7 @@ module Nelumba
 
     def update_from_notification(notification, force = false)
       # Do not allow another actor to change an existing activity
-      if self.actor && self.actor.url != notification.activity.actor.url
+      if self.actors and self.actors.first and self.actors.first.url != notification.activity.actors.first.url
         return nil
       end
 
