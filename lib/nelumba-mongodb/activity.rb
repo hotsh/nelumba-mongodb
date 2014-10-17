@@ -178,7 +178,7 @@ module Nelumba
       return @object if @object
 
       return @object = self.embedded_object if self.embedded_object
-      return @object = self unless self.external_object_type
+      return @object = nil unless self.external_object_type
 
       return nil if self.external_object_type && !Nelumba.const_defined?(self.external_object_type)
       klass = Nelumba.const_get(self.external_object_type) if self.external_object_type
