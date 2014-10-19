@@ -430,8 +430,7 @@ describe Nelumba::Person do
       activity = Nelumba::Activity.new
 
       @person.activities.expects(:post!)
-        .with(has_entries(:actor_id   => @person.id,
-                          :actor_type => 'Person'))
+        .with(has_entries(:actor => @person))
 
       @person.favorite! activity
     end
@@ -480,8 +479,7 @@ describe Nelumba::Person do
       activity = Nelumba::Activity.new
 
       @person.activities.expects(:post!)
-        .with(has_entries(:actor_id   => @person.id,
-                          :actor_type => 'Person'))
+        .with(has_entries(:actor   => @person))
 
       @person.unfavorite! activity
     end
@@ -600,8 +598,7 @@ describe Nelumba::Person do
       activity = Nelumba::Activity.new
 
       @person.activities.expects(:post!)
-        .with(has_entries(:actor_id  => @person.id,
-                          :actor_type => 'Person'))
+        .with(has_entries(:actor => @person))
 
       @person.share! activity
     end

@@ -279,8 +279,7 @@ module Nelumba
 
       # Add the activity
       self.activities.post!(:verb                 => :follow,
-                            :actor_id             => self.id,
-                            :actor_type           => 'Person',
+                            :actor                => self,
                             :external_object_id   => author.id,
                             :external_object_type => 'Person')
     end
@@ -305,8 +304,7 @@ module Nelumba
 
       # Add the activity
       self.activities.post!(:verb                 => :"stop-following",
-                            :actor_id             => self.id,
-                            :actor_type           => 'Person',
+                            :actor                => self,
                             :external_object_id   => author.id,
                             :external_object_type => 'Person')
     end
@@ -356,8 +354,7 @@ module Nelumba
       self.favorites.repost! activity
 
       self.activities.post!(:verb                 => :favorite,
-                            :actor_id             => self.id,
-                            :actor_type           => 'Person',
+                            :actor                => self,
                             :external_object_id   => activity.id,
                             :external_object_type => 'Activity')
     end
@@ -367,8 +364,7 @@ module Nelumba
       self.favorites.delete! activity
 
       self.activities.post!(:verb                 => :unfavorite,
-                            :actor_id             => self.id,
-                            :actor_type           => 'Person',
+                            :actor                => self,
                             :external_object_id   => activity.id,
                             :external_object_type => 'Activity')
     end
@@ -386,10 +382,9 @@ module Nelumba
     # Post a new Activity.
     def post!(activity)
       if activity.is_a? Hash
-        activity["actor_id"] = self.id
-        activity["actor_type"] = 'Person'
+        activity[:actor] = self
 
-        activity["verb"] = :post unless activity["verb"] || activity[:verb]
+        activity[:verb] = :post unless activity["verb"] || activity[:verb]
 
         # Create a new activity
         activity = Activity.create!(activity)
@@ -410,8 +405,7 @@ module Nelumba
       self.shared.repost!   activity
 
       self.activities.post!(:verb                 => :share,
-                            :actor_id             => self.id,
-                            :actor_type           => 'Person',
+                            :actor                => self,
                             :external_object_id   => activity.id,
                             :external_object_type => 'Activity')
     end
