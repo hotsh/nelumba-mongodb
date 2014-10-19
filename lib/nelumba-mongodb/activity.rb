@@ -51,9 +51,9 @@ module Nelumba
     # Scrape content for username mentions.
     def scrape_mentions
       return if self.object.nil?
-      return unless !self.object.is_a?(Nelumba::Person) &&
-                    self.object.respond_to?(:mentions)
-      authors = self.object.mentions do |username, domain|
+      return unless !self.object.is_a?(Nelumba::Person) and
+                    self.object.respond_to?(:parse_mentions)
+      authors = self.object.parse_mentions do |username, domain|
         i = Identity.first(:username => /^#{Regexp.escape(username)}$/i)
         i.person if i
       end
