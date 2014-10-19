@@ -443,7 +443,8 @@ module Nelumba
     # Deliver an activity from within the server
     def local_deliver!(activity)
       # If we follow, add to the timeline
-      self.timeline.repost! activity if self.follow?(activity.actor)
+      # TODO: handle multiple authors... check for any in #follow?
+      self.timeline.repost! activity if self.follow?(activity.actors.first)
 
       # Determine if it is a mention or reply and filter
       self.mentions.repost! activity if activity.mentions? self
