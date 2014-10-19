@@ -591,5 +591,18 @@ module Nelumba
     def to_xml(*args)
       self.to_atom
     end
+
+    def self.find_by_username_and_domain(username, domain=nil)
+      if username and domain
+        i = Nelumba::Identity.first(:username => username,
+                                    :domain   => domain)
+      elsif username
+        i = Nelumba::Identity.first(:username => username)
+      else
+        nil
+      end
+
+      i.person if i
+    end
   end
 end

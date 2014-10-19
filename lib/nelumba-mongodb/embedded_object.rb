@@ -10,6 +10,15 @@ module Nelumba
           super(*args, &blk)
         end
 
+        def init(*args, &blk)
+          # Default author negotiation
+          unless blk
+            blk = Nelumba::Person.method(:find_by_username_and_domain)
+          end
+
+          super *args, &blk
+        end
+
         belongs_to :author, :class_name => 'Nelumba::Person'
         key :author_id, ObjectId
 

@@ -96,13 +96,23 @@ module Nelumba
     end
 
     def self.find_by_identifier(identifier)
-      matches  = identifier.match /^(?:.+\:)?([^@]+)@(.+)$/
+      matches  = identifier.match /^(?:.+\:)?([^@]+)(?:@(.+))?$/
 
-      username = matches[1].downcase
-      domain   = matches[2].downcase
+      username = matches[1].downcase if matches[1]
+      domain   = matches[2].downcase if matches[2]
 
-      Nelumba::Identity.first(:username => username,
-                            :domain => domain)
+      Nelumba::Identity.find_by_username_and_domain(username, domain)
+    end
+
+    def self.find_by_username_and_domain(username, domain=nil)
+      if username and domain
+        Nelumba::Identity.first(:username => username,
+                                :domain   => domain)
+      elsif username
+        Nelumba::Identity.first(:username => username)
+      else
+        nil
+      end
     end
 
     # Create a new Identity from a Hash of values or a Nelumba::Identity.
