@@ -10,13 +10,14 @@ module Nelumba
           super(*args, &blk)
         end
 
+        alias_method :__old_init, :init
         def init(*args, &blk)
           # Default author negotiation
           unless blk
             blk = Nelumba::Person.method(:find_by_username_and_domain)
           end
 
-          super *args, &blk
+          __old_init(*args, &blk)
         end
 
         belongs_to :author, :class_name => 'Nelumba::Person'
